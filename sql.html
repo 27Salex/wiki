@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL General — Wiki Técnica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body{background:#f8f9fa;font-family:'Segoe UI',system-ui,sans-serif}
+        .page-header{background:linear-gradient(135deg,#4facfe,#00f2fe);color:#fff;padding:2rem 1rem;border-radius:0 0 1.5rem 1.5rem;margin-bottom:1.5rem;text-align:center}
+        .page-header h1{font-weight:800;font-size:1.8rem}
+        pre{background:#1e1e2e;color:#cdd6f4;border-radius:.75rem;padding:1rem;overflow-x:auto;font-size:.85rem;line-height:1.5}
+        code{font-family:'Cascadia Code','Fira Code',monospace}
+        .kw{color:#cba6f7}.fn{color:#89b4fa}.str{color:#a6e3a1}.cm{color:#6c7086;font-style:italic}.num{color:#fab387}
+        .back-btn{position:fixed;bottom:1rem;right:1rem;z-index:1000;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+        h2{color:#4facfe;font-weight:700;margin-top:2rem;border-bottom:3px solid #4facfe;padding-bottom:.4rem}
+        h3{color:#495057;font-weight:600;margin-top:1.5rem}
+        .card{border:none;border-radius:1rem;margin-bottom:1rem}
+    </style>
+</head>
+<body>
+<header class="page-header">
+    <i class="bi bi-database" style="font-size:2.5rem"></i>
+    <h1>SQL General</h1>
+    <p class="mb-0 opacity-75">Structured Query Language — Estándar ANSI/ISO</p>
+</header>
+
+<main class="container px-3 pb-5">
+
+<!-- ==================== INTRODUCCIÓN ==================== -->
+<h2><i class="bi bi-info-circle"></i> ¿Qué es SQL?</h2>
+<p><strong>SQL (Structured Query Language)</strong> es el lenguaje estándar para gestionar y manipular bases de datos relacionales. Fue desarrollado en los años 70 por IBM y estandarizado por ANSI e ISO. Es utilizado por prácticamente todos los sistemas de gestión de bases de datos relacionales (RDBMS): MySQL, PostgreSQL, SQL Server, Oracle, SQLite, etc.</p>
+<p>SQL se divide en varios sublenguajes según el tipo de operación:</p>
+<div class="card shadow-sm">
+<div class="card-body">
+<ul class="mb-0">
+    <li><strong>DDL (Data Definition Language):</strong> CREATE, ALTER, DROP, TRUNCATE — definen la estructura.</li>
+    <li><strong>DML (Data Manipulation Language):</strong> SELECT, INSERT, UPDATE, DELETE — manipulan datos.</li>
+    <li><strong>DCL (Data Control Language):</strong> GRANT, REVOKE — controlan permisos.</li>
+    <li><strong>TCL (Transaction Control Language):</strong> COMMIT, ROLLBACK, SAVEPOINT — controlan transacciones.</li>
+</ul>
+</div>
+</div>
+
+<!-- ==================== DDL ==================== -->
+<h2><i class="bi bi-hammer"></i> DDL — Definición de Datos</h2>
+
+<h3>CREATE TABLE</h3>
+<p>Crea una nueva tabla con columnas y restricciones (constraints).</p>
+<pre><code><span class="cm">-- Crear tabla de empleados con restricciones</span>
+<span class="kw">CREATE TABLE</span> empleados (
+    id          <span class="fn">INT</span> <span class="kw">PRIMARY KEY</span>,
+    nombre      <span class="fn">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+    email       <span class="fn">VARCHAR</span>(<span class="num">150</span>) <span class="kw">UNIQUE</span>,
+    salario     <span class="fn">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>) <span class="kw">DEFAULT</span> <span class="num">0.00</span>,
+    depto_id    <span class="fn">INT</span>,
+    fecha_alta  <span class="fn">DATE</span> <span class="kw">NOT NULL</span>,
+    <span class="kw">CONSTRAINT</span> fk_depto <span class="kw">FOREIGN KEY</span> (depto_id)
+        <span class="kw">REFERENCES</span> departamentos(id)
+        <span class="kw">ON DELETE SET NULL</span>
+        <span class="kw">ON UPDATE CASCADE</span>
+);</code></pre>
+
+<h3>ALTER TABLE</h3>
+<p>Modifica la estructura de una tabla existente.</p>
+<pre><code><span class="cm">-- Añadir columna</span>
+<span class="kw">ALTER TABLE</span> empleados <span class="kw">ADD</span> telefono <span class="fn">VARCHAR</span>(<span class="num">20</span>);
+
+<span class="cm">-- Modificar tipo de columna</span>
+<span class="kw">ALTER TABLE</span> empleados <span class="kw">ALTER COLUMN</span> nombre <span class="fn">VARCHAR</span>(<span class="num">200</span>);
+
+<span class="cm">-- Eliminar columna</span>
+<span class="kw">ALTER TABLE</span> empleados <span class="kw">DROP COLUMN</span> telefono;
+
+<span class="cm">-- Añadir restricción CHECK</span>
+<span class="kw">ALTER TABLE</span> empleados
+<span class="kw">ADD CONSTRAINT</span> chk_salario <span class="kw">CHECK</span> (salario >= <span class="num">0</span>);</code></pre>
+
+<h3>DROP y TRUNCATE</h3>
+<pre><code><span class="cm">-- DROP elimina la tabla y su estructura por completo</span>
+<span class="kw">DROP TABLE IF EXISTS</span> empleados;
+
+<span class="cm">-- TRUNCATE vacía todos los datos pero mantiene la estructura</span>
+<span class="kw">TRUNCATE TABLE</span> empleados;</code></pre>
+
+<!-- ==================== DML ==================== -->
+<h2><i class="bi bi-pencil-square"></i> DML — Manipulación de Datos</h2>
+
+<h3>SELECT — Consultas</h3>
+<p>La sentencia más usada en SQL. Permite recuperar datos de una o más tablas.</p>
+<pre><code><span class="cm">-- Consulta básica con alias y filtro</span>
+<span class="kw">SELECT</span>
+    e.nombre        <span class="kw">AS</span> <span class="str">"Empleado"</span>,
+    d.nombre        <span class="kw">AS</span> <span class="str">"Departamento"</span>,
+    e.salario
+<span class="kw">FROM</span> empleados e
+<span class="kw">JOIN</span> departamentos d <span class="kw">ON</span> e.depto_id = d.id
+<span class="kw">WHERE</span> e.salario > <span class="num">30000</span>
+<span class="kw">ORDER BY</span> e.salario <span class="kw">DESC</span>;</code></pre>
+
+<h3>INSERT</h3>
+<pre><code><span class="cm">-- Insertar una fila</span>
+<span class="kw">INSERT INTO</span> empleados (id, nombre, email, salario, depto_id, fecha_alta)
+<span class="kw">VALUES</span> (<span class="num">1</span>, <span class="str">'Ana García'</span>, <span class="str">'ana@empresa.com'</span>, <span class="num">35000</span>, <span class="num">2</span>, <span class="str">'2025-01-15'</span>);
+
+<span class="cm">-- Insertar múltiples filas</span>
+<span class="kw">INSERT INTO</span> empleados (id, nombre, email, salario, depto_id, fecha_alta)
+<span class="kw">VALUES</span>
+    (<span class="num">2</span>, <span class="str">'Carlos López'</span>,  <span class="str">'carlos@empresa.com'</span>, <span class="num">42000</span>, <span class="num">1</span>, <span class="str">'2024-06-01'</span>),
+    (<span class="num">3</span>, <span class="str">'María Ruiz'</span>,    <span class="str">'maria@empresa.com'</span>,  <span class="num">38000</span>, <span class="num">3</span>, <span class="str">'2025-03-10'</span>);</code></pre>
+
+<h3>UPDATE</h3>
+<pre><code><span class="cm">-- Actualizar salario de un empleado</span>
+<span class="kw">UPDATE</span> empleados
+<span class="kw">SET</span> salario = salario * <span class="num">1.10</span>
+<span class="kw">WHERE</span> depto_id = <span class="num">2</span>;
+
+<span class="cm">-- Actualizar con subconsulta</span>
+<span class="kw">UPDATE</span> empleados
+<span class="kw">SET</span> depto_id = (<span class="kw">SELECT</span> id <span class="kw">FROM</span> departamentos <span class="kw">WHERE</span> nombre = <span class="str">'IT'</span>)
+<span class="kw">WHERE</span> email = <span class="str">'ana@empresa.com'</span>;</code></pre>
+
+<h3>DELETE</h3>
+<pre><code><span class="cm">-- Eliminar registros con condición</span>
+<span class="kw">DELETE FROM</span> empleados
+<span class="kw">WHERE</span> fecha_alta &lt; <span class="str">'2020-01-01'</span>;
+
+<span class="cm">-- ⚠️ Sin WHERE elimina TODOS los registros</span>
+<span class="kw">DELETE FROM</span> empleados;</code></pre>
+
+<!-- ==================== JOINs ==================== -->
+<h2><i class="bi bi-link-45deg"></i> JOINs — Combinación de Tablas</h2>
+<p>Los JOINs permiten combinar filas de dos o más tablas basándose en una columna relacionada.</p>
+
+<h3>INNER JOIN</h3>
+<p>Devuelve solo las filas que tienen coincidencias en <strong>ambas</strong> tablas.</p>
+<pre><code><span class="cm">-- Empleados CON departamento asignado</span>
+<span class="kw">SELECT</span> e.nombre, d.nombre <span class="kw">AS</span> departamento
+<span class="kw">FROM</span> empleados e
+<span class="kw">INNER JOIN</span> departamentos d <span class="kw">ON</span> e.depto_id = d.id;</code></pre>
+
+<h3>LEFT JOIN</h3>
+<p>Devuelve <strong>todas</strong> las filas de la tabla izquierda y las coincidencias de la derecha. Si no hay coincidencia, muestra NULL.</p>
+<pre><code><span class="cm">-- TODOS los empleados, aunque no tengan departamento</span>
+<span class="kw">SELECT</span> e.nombre, <span class="fn">COALESCE</span>(d.nombre, <span class="str">'Sin asignar'</span>) <span class="kw">AS</span> departamento
+<span class="kw">FROM</span> empleados e
+<span class="kw">LEFT JOIN</span> departamentos d <span class="kw">ON</span> e.depto_id = d.id;</code></pre>
+
+<h3>RIGHT JOIN</h3>
+<p>Inverso al LEFT JOIN: devuelve todas las filas de la tabla <strong>derecha</strong>.</p>
+<pre><code><span class="cm">-- TODOS los departamentos, aunque no tengan empleados</span>
+<span class="kw">SELECT</span> d.nombre <span class="kw">AS</span> departamento, <span class="fn">COUNT</span>(e.id) <span class="kw">AS</span> total
+<span class="kw">FROM</span> empleados e
+<span class="kw">RIGHT JOIN</span> departamentos d <span class="kw">ON</span> e.depto_id = d.id
+<span class="kw">GROUP BY</span> d.nombre;</code></pre>
+
+<h3>FULL OUTER JOIN</h3>
+<p>Combina LEFT y RIGHT: devuelve todas las filas de ambas tablas.</p>
+<pre><code><span class="kw">SELECT</span> e.nombre, d.nombre <span class="kw">AS</span> departamento
+<span class="kw">FROM</span> empleados e
+<span class="kw">FULL OUTER JOIN</span> departamentos d <span class="kw">ON</span> e.depto_id = d.id;</code></pre>
+
+<h3>CROSS JOIN</h3>
+<p>Producto cartesiano: combina cada fila de la primera tabla con todas las de la segunda.</p>
+<pre><code><span class="cm">-- Útil para generar combinaciones</span>
+<span class="kw">SELECT</span> t.turno, d.nombre
+<span class="kw">FROM</span> turnos t
+<span class="kw">CROSS JOIN</span> departamentos d;</code></pre>
+
+<!-- ==================== Funciones Agregadas ==================== -->
+<h2><i class="bi bi-calculator"></i> Funciones Agregadas y GROUP BY</h2>
+<pre><code><span class="cm">-- COUNT, SUM, AVG, MIN, MAX</span>
+<span class="kw">SELECT</span>
+    d.nombre                     <span class="kw">AS</span> departamento,
+    <span class="fn">COUNT</span>(e.id)                 <span class="kw">AS</span> total_empleados,
+    <span class="fn">AVG</span>(e.salario)              <span class="kw">AS</span> salario_medio,
+    <span class="fn">MAX</span>(e.salario)              <span class="kw">AS</span> salario_max,
+    <span class="fn">MIN</span>(e.salario)              <span class="kw">AS</span> salario_min,
+    <span class="fn">SUM</span>(e.salario)              <span class="kw">AS</span> masa_salarial
+<span class="kw">FROM</span> empleados e
+<span class="kw">JOIN</span> departamentos d <span class="kw">ON</span> e.depto_id = d.id
+<span class="kw">GROUP BY</span> d.nombre
+<span class="kw">HAVING</span> <span class="fn">AVG</span>(e.salario) > <span class="num">30000</span>
+<span class="kw">ORDER BY</span> salario_medio <span class="kw">DESC</span>;</code></pre>
+
+<!-- ==================== Subconsultas ==================== -->
+<h2><i class="bi bi-layers"></i> Subconsultas (Subqueries)</h2>
+<pre><code><span class="cm">-- Subconsulta escalar en WHERE</span>
+<span class="kw">SELECT</span> nombre, salario
+<span class="kw">FROM</span> empleados
+<span class="kw">WHERE</span> salario > (<span class="kw">SELECT</span> <span class="fn">AVG</span>(salario) <span class="kw">FROM</span> empleados);
+
+<span class="cm">-- Subconsulta con IN</span>
+<span class="kw">SELECT</span> nombre
+<span class="kw">FROM</span> empleados
+<span class="kw">WHERE</span> depto_id <span class="kw">IN</span> (
+    <span class="kw">SELECT</span> id <span class="kw">FROM</span> departamentos <span class="kw">WHERE</span> nombre <span class="kw">LIKE</span> <span class="str">'%Ventas%'</span>
+);
+
+<span class="cm">-- Subconsulta correlacionada con EXISTS</span>
+<span class="kw">SELECT</span> d.nombre
+<span class="kw">FROM</span> departamentos d
+<span class="kw">WHERE EXISTS</span> (
+    <span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">FROM</span> empleados e
+    <span class="kw">WHERE</span> e.depto_id = d.id <span class="kw">AND</span> e.salario > <span class="num">50000</span>
+);</code></pre>
+
+<!-- ==================== CTEs ==================== -->
+<h2><i class="bi bi-list-nested"></i> CTEs (Common Table Expressions)</h2>
+<p>Las CTEs permiten crear consultas temporales con nombre que mejoran la legibilidad.</p>
+<pre><code><span class="cm">-- CTE para calcular ranking de salarios</span>
+<span class="kw">WITH</span> ranking_salarios <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        nombre,
+        salario,
+        depto_id,
+        <span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> salario <span class="kw">DESC</span>) <span class="kw">AS</span> posicion
+    <span class="kw">FROM</span> empleados
+)
+<span class="kw">SELECT</span> r.nombre, r.salario, r.posicion, d.nombre <span class="kw">AS</span> depto
+<span class="kw">FROM</span> ranking_salarios r
+<span class="kw">JOIN</span> departamentos d <span class="kw">ON</span> r.depto_id = d.id
+<span class="kw">WHERE</span> r.posicion &lt;= <span class="num">5</span>;</code></pre>
+
+<!-- ==================== Window Functions ==================== -->
+<h2><i class="bi bi-window-stack"></i> Window Functions</h2>
+<p>Realizan cálculos sobre un conjunto de filas relacionadas con la fila actual, sin colapsar los resultados como GROUP BY.</p>
+<pre><code><span class="kw">SELECT</span>
+    nombre,
+    depto_id,
+    salario,
+    <span class="cm">-- Promedio por departamento sin agrupar</span>
+    <span class="fn">AVG</span>(salario) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> depto_id) <span class="kw">AS</span> avg_depto,
+    <span class="cm">-- Número de fila por departamento</span>
+    <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (
+        <span class="kw">PARTITION BY</span> depto_id <span class="kw">ORDER BY</span> salario <span class="kw">DESC</span>
+    ) <span class="kw">AS</span> fila,
+    <span class="cm">-- Acumulado de salario</span>
+    <span class="fn">SUM</span>(salario) <span class="kw">OVER</span> (
+        <span class="kw">ORDER BY</span> fecha_alta
+        <span class="kw">ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</span>
+    ) <span class="kw">AS</span> salario_acumulado
+<span class="kw">FROM</span> empleados;</code></pre>
+
+<!-- ==================== Vistas e Índices ==================== -->
+<h2><i class="bi bi-eye"></i> Vistas e Índices</h2>
+
+<h3>Vistas (Views)</h3>
+<p>Una vista es una consulta almacenada que se comporta como una tabla virtual.</p>
+<pre><code><span class="cm">-- Crear vista</span>
+<span class="kw">CREATE VIEW</span> v_resumen_departamento <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+    d.nombre <span class="kw">AS</span> departamento,
+    <span class="fn">COUNT</span>(e.id) <span class="kw">AS</span> empleados,
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(e.salario), <span class="num">2</span>) <span class="kw">AS</span> salario_medio
+<span class="kw">FROM</span> departamentos d
+<span class="kw">LEFT JOIN</span> empleados e <span class="kw">ON</span> d.id = e.depto_id
+<span class="kw">GROUP BY</span> d.nombre;
+
+<span class="cm">-- Usar la vista como una tabla</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> v_resumen_departamento
+<span class="kw">WHERE</span> empleados > <span class="num">5</span>;</code></pre>
+
+<h3>Índices</h3>
+<p>Los índices aceleran las consultas a cambio de más espacio en disco y escrituras más lentas.</p>
+<pre><code><span class="cm">-- Índice simple</span>
+<span class="kw">CREATE INDEX</span> idx_emp_nombre <span class="kw">ON</span> empleados(nombre);
+
+<span class="cm">-- Índice compuesto (útil para búsquedas combinadas)</span>
+<span class="kw">CREATE INDEX</span> idx_emp_depto_sal <span class="kw">ON</span> empleados(depto_id, salario);
+
+<span class="cm">-- Índice único (impide duplicados)</span>
+<span class="kw">CREATE UNIQUE INDEX</span> idx_emp_email <span class="kw">ON</span> empleados(email);</code></pre>
+
+<!-- ==================== TCL ==================== -->
+<h2><i class="bi bi-arrow-repeat"></i> TCL — Control de Transacciones</h2>
+<p>Las transacciones aseguran que un grupo de operaciones se ejecute de forma atómica (todo o nada).</p>
+<pre><code><span class="kw">BEGIN TRANSACTION</span>;
+
+<span class="kw">UPDATE</span> cuentas <span class="kw">SET</span> saldo = saldo - <span class="num">500</span> <span class="kw">WHERE</span> id = <span class="num">1</span>;
+<span class="kw">UPDATE</span> cuentas <span class="kw">SET</span> saldo = saldo + <span class="num">500</span> <span class="kw">WHERE</span> id = <span class="num">2</span>;
+
+<span class="cm">-- Si todo va bien:</span>
+<span class="kw">COMMIT</span>;
+
+<span class="cm">-- Si hay error:</span>
+<span class="cm">-- ROLLBACK;</span></code></pre>
+
+<!-- ==================== DCL ==================== -->
+<h2><i class="bi bi-shield-lock"></i> DCL — Control de Acceso</h2>
+<pre><code><span class="cm">-- Conceder permisos</span>
+<span class="kw">GRANT SELECT</span>, <span class="kw">INSERT</span> <span class="kw">ON</span> empleados <span class="kw">TO</span> usuario_app;
+
+<span class="cm">-- Revocar permisos</span>
+<span class="kw">REVOKE INSERT ON</span> empleados <span class="kw">FROM</span> usuario_app;</code></pre>
+
+</main>
+
+<a href="index.html" class="btn btn-primary back-btn shadow" title="Volver al inicio" id="btn-back">
+    <i class="bi bi-house-fill"></i>
+</a>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

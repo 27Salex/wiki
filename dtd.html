@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTD — Wiki Técnica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body{background:#f8f9fa;font-family:'Segoe UI',system-ui,sans-serif}
+        .page-header{background:linear-gradient(135deg,#fccb90,#d57eeb);color:#fff;padding:2rem 1rem;border-radius:0 0 1.5rem 1.5rem;margin-bottom:1.5rem;text-align:center}
+        .page-header h1{font-weight:800;font-size:1.8rem}
+        pre{background:#1e1e2e;color:#cdd6f4;border-radius:.75rem;padding:1rem;overflow-x:auto;font-size:.85rem;line-height:1.5}
+        code{font-family:'Cascadia Code','Fira Code',monospace}
+        .kw{color:#cba6f7}.fn{color:#89b4fa}.str{color:#a6e3a1}.cm{color:#6c7086;font-style:italic}.num{color:#fab387}.tag{color:#f38ba8}.attr{color:#f9e2af}
+        .back-btn{position:fixed;bottom:1rem;right:1rem;z-index:1000;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+        h2{color:#d57eeb;font-weight:700;margin-top:2rem;border-bottom:3px solid #d57eeb;padding-bottom:.4rem}
+        h3{color:#495057;font-weight:600;margin-top:1.5rem}
+        .card{border:none;border-radius:1rem;margin-bottom:1rem}
+    </style>
+</head>
+<body>
+<header class="page-header">
+    <i class="bi bi-file-earmark-code" style="font-size:2.5rem"></i>
+    <h1>DTD</h1>
+    <p class="mb-0 opacity-75">Document Type Definition — Validación de XML</p>
+</header>
+
+<main class="container px-3 pb-5">
+
+<!-- ==================== INTRODUCCIÓN ==================== -->
+<h2><i class="bi bi-info-circle"></i> ¿Qué es DTD?</h2>
+<p><strong>DTD (Document Type Definition)</strong> es un mecanismo para definir la estructura y las reglas que debe cumplir un documento XML. Permite especificar qué elementos, atributos y entidades son válidos, y en qué orden pueden aparecer.</p>
+<div class="card shadow-sm">
+<div class="card-body">
+<strong>Características:</strong>
+<ul class="mb-0 mt-1">
+    <li>Define la estructura legal de un documento XML</li>
+    <li>Puede ser interna (dentro del XML) o externa (archivo .dtd)</li>
+    <li>Sintaxis propia (no es XML)</li>
+    <li>No soporta tipos de datos complejos (para eso existe XSD)</li>
+    <li>No soporta namespaces</li>
+</ul>
+</div>
+</div>
+
+<!-- ==================== DTD INTERNA vs EXTERNA ==================== -->
+<h2><i class="bi bi-file-earmark-diff"></i> DTD Interna vs Externa</h2>
+
+<h3>DTD Interna</h3>
+<p>Se define dentro del propio documento XML, en la declaración <code>&lt;!DOCTYPE&gt;</code>.</p>
+<pre><code><span class="cm">&lt;!-- DTD interna: la definición va entre corchetes [] --&gt;</span>
+<span class="kw">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="tag">&lt;!DOCTYPE</span> biblioteca [
+    <span class="tag">&lt;!ELEMENT</span> <span class="fn">biblioteca</span> (libro+)<span class="tag">&gt;</span>
+    <span class="tag">&lt;!ELEMENT</span> <span class="fn">libro</span> (titulo, autor, anio)<span class="tag">&gt;</span>
+    <span class="tag">&lt;!ELEMENT</span> <span class="fn">titulo</span> (#PCDATA)<span class="tag">&gt;</span>
+    <span class="tag">&lt;!ELEMENT</span> <span class="fn">autor</span> (#PCDATA)<span class="tag">&gt;</span>
+    <span class="tag">&lt;!ELEMENT</span> <span class="fn">anio</span> (#PCDATA)<span class="tag">&gt;</span>
+    <span class="tag">&lt;!ATTLIST</span> <span class="fn">libro</span> <span class="attr">isbn</span> CDATA #REQUIRED<span class="tag">&gt;</span>
+]<span class="tag">&gt;</span>
+<span class="tag">&lt;biblioteca&gt;</span>
+    <span class="tag">&lt;libro</span> <span class="attr">isbn=</span><span class="str">"978-0-123456-78-9"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;titulo&gt;</span>Aprendiendo XML<span class="tag">&lt;/titulo&gt;</span>
+        <span class="tag">&lt;autor&gt;</span>Juan Pérez<span class="tag">&lt;/autor&gt;</span>
+        <span class="tag">&lt;anio&gt;</span>2025<span class="tag">&lt;/anio&gt;</span>
+    <span class="tag">&lt;/libro&gt;</span>
+<span class="tag">&lt;/biblioteca&gt;</span></code></pre>
+
+<h3>DTD Externa</h3>
+<p>Se almacena en un archivo separado <code>.dtd</code> y se referencia desde el XML.</p>
+<pre><code><span class="cm">&lt;!-- Archivo: biblioteca.dtd --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">biblioteca</span> (libro+)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">libro</span> (titulo, autor, anio, editorial?)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">titulo</span> (#PCDATA)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">autor</span> (#PCDATA)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">anio</span> (#PCDATA)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">editorial</span> (#PCDATA)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">libro</span> <span class="attr">isbn</span> CDATA #REQUIRED<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- Archivo: biblioteca.xml --&gt;</span>
+<span class="kw">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="tag">&lt;!DOCTYPE</span> biblioteca SYSTEM <span class="str">"biblioteca.dtd"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;biblioteca&gt;</span>
+    <span class="cm">&lt;!-- contenido XML aquí --&gt;</span>
+<span class="tag">&lt;/biblioteca&gt;</span></code></pre>
+
+<!-- ==================== DECLARACIÓN DE ELEMENTOS ==================== -->
+<h2><i class="bi bi-diagram-2"></i> Declaración de Elementos</h2>
+<p>Los elementos se declaran con <code>&lt;!ELEMENT&gt;</code> seguido del nombre y su contenido permitido.</p>
+
+<h3>Tipos de contenido</h3>
+<pre><code><span class="cm">&lt;!-- Texto puro (Parsed Character Data) --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">nombre</span> (#PCDATA)<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- Elemento vacío (sin contenido, como &lt;br/&gt;) --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">saltoLinea</span> EMPTY<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- Cualquier contenido (elementos y/o texto) --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">contenedor</span> ANY<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- Solo elementos hijos (sin texto directo) --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">persona</span> (nombre, apellido, email)<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- Contenido mixto (texto + elementos) --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">parrafo</span> (#PCDATA | negrita | cursiva)*<span class="tag">&gt;</span></code></pre>
+
+<h3>Indicadores de cardinalidad</h3>
+<pre><code><span class="cm">&lt;!-- Sin indicador: exactamente 1 (obligatorio) --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">persona</span> (nombre)<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- ? = 0 o 1 (opcional) --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">persona</span> (nombre, telefono?)<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- + = 1 o más (al menos uno) --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">biblioteca</span> (libro+)<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- * = 0 o más (cualquier cantidad) --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">lista</span> (item*)<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- | = elección (uno u otro) --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">pago</span> (tarjeta | efectivo | transferencia)<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- , = secuencia (en ese orden exacto) --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">direccion</span> (calle, numero, ciudad, cp)<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- Combinaciones --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">pedido</span> (cliente, producto+, descuento?, nota*)<span class="tag">&gt;</span></code></pre>
+
+<!-- ==================== DECLARACIÓN DE ATRIBUTOS ==================== -->
+<h2><i class="bi bi-tags"></i> Declaración de Atributos</h2>
+<p>Se declaran con <code>&lt;!ATTLIST&gt;</code> especificando el elemento, nombre, tipo y modo.</p>
+
+<h3>Tipos de atributos</h3>
+<pre><code><span class="cm">&lt;!-- CDATA: texto libre --&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">libro</span> <span class="attr">isbn</span> CDATA #REQUIRED<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- Enumeración: solo valores listados --&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">libro</span> <span class="attr">formato</span> (fisico | digital | audio) <span class="str">"fisico"</span><span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- ID: identificador único en el documento --&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">libro</span> <span class="attr">id</span> ID #REQUIRED<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- IDREF: referencia a un ID existente --&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">prestamo</span> <span class="attr">libro_ref</span> IDREF #REQUIRED<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- IDREFS: múltiples referencias a IDs --&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">autor</span> <span class="attr">libros_ids</span> IDREFS #IMPLIED<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- NMTOKEN: nombre XML válido (sin espacios) --&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">producto</span> <span class="attr">codigo</span> NMTOKEN #REQUIRED<span class="tag">&gt;</span></code></pre>
+
+<h3>Modos de atributos</h3>
+<pre><code><span class="cm">&lt;!-- #REQUIRED: obligatorio --&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">libro</span> <span class="attr">isbn</span> CDATA #REQUIRED<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- #IMPLIED: opcional, sin valor por defecto --&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">libro</span> <span class="attr">edicion</span> CDATA #IMPLIED<span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- Valor por defecto: se usa si no se especifica --&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">libro</span> <span class="attr">idioma</span> CDATA <span class="str">"es"</span><span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- #FIXED: valor fijo, no puede cambiarse --&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">libro</span> <span class="attr">tipo</span> CDATA #FIXED <span class="str">"impreso"</span><span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- Múltiples atributos del mismo elemento --&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">empleado</span>
+    <span class="attr">id</span>        ID     #REQUIRED
+    <span class="attr">nombre</span>    CDATA  #REQUIRED
+    <span class="attr">activo</span>    (si | no) <span class="str">"si"</span>
+    <span class="attr">telefono</span>  CDATA  #IMPLIED
+<span class="tag">&gt;</span></code></pre>
+
+<!-- ==================== ENTIDADES ==================== -->
+<h2><i class="bi bi-box-arrow-in-right"></i> Entidades</h2>
+<p>Las entidades son "variables" reutilizables que se sustituyen al procesar el XML.</p>
+
+<h3>Entidades generales (internas)</h3>
+<pre><code><span class="cm">&lt;!-- Definir entidad --&gt;</span>
+<span class="tag">&lt;!ENTITY</span> <span class="fn">empresa</span> <span class="str">"TechCorp Solutions S.L."</span><span class="tag">&gt;</span>
+<span class="tag">&lt;!ENTITY</span> <span class="fn">copyright</span> <span class="str">"&amp;copy; 2026 TechCorp"</span><span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- Usar en el XML --&gt;</span>
+<span class="tag">&lt;nombre&gt;</span>&amp;empresa;<span class="tag">&lt;/nombre&gt;</span>
+<span class="cm">&lt;!-- Se renderiza como: TechCorp Solutions S.L. --&gt;</span></code></pre>
+
+<h3>Entidades externas</h3>
+<pre><code><span class="cm">&lt;!-- Referencia a un archivo externo --&gt;</span>
+<span class="tag">&lt;!ENTITY</span> <span class="fn">aviso_legal</span> SYSTEM <span class="str">"aviso_legal.xml"</span><span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- Entidad pública (recurso conocido) --&gt;</span>
+<span class="tag">&lt;!ENTITY</span> <span class="fn">iso_pais</span> PUBLIC <span class="str">"-//ISO//Countries//EN"</span> <span class="str">"countries.xml"</span><span class="tag">&gt;</span></code></pre>
+
+<h3>Entidades de parámetro (solo dentro del DTD)</h3>
+<pre><code><span class="cm">&lt;!-- Se declaran con % y solo se usan dentro del DTD --&gt;</span>
+<span class="tag">&lt;!ENTITY</span> <span class="fn">% datos_contacto</span> <span class="str">"telefono?, email?, web?"</span><span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- Reutilizar en varias declaraciones --&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">cliente</span> (nombre, %datos_contacto;)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">proveedor</span> (razon_social, %datos_contacto;)<span class="tag">&gt;</span></code></pre>
+
+<!-- ==================== EJEMPLO COMPLETO ==================== -->
+<h2><i class="bi bi-file-earmark-check"></i> Ejemplo Completo</h2>
+<pre><code><span class="cm">&lt;!-- tienda.dtd --&gt;</span>
+<span class="tag">&lt;!ENTITY</span> <span class="fn">% info_contacto</span> <span class="str">"telefono?, email"</span><span class="tag">&gt;</span>
+
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">tienda</span> (cliente+, producto+, pedido*)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">tienda</span> <span class="attr">nombre</span> CDATA #REQUIRED<span class="tag">&gt;</span>
+
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">cliente</span> (nombre, apellido, %info_contacto;)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">cliente</span> <span class="attr">id</span> ID #REQUIRED<span class="tag">&gt;</span>
+
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">producto</span> (nombre_prod, precio, descripcion?)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">producto</span>
+    <span class="attr">id</span>        ID     #REQUIRED
+    <span class="attr">categoria</span> (electronica | ropa | hogar) #REQUIRED
+<span class="tag">&gt;</span>
+
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">pedido</span> (linea+)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">pedido</span>
+    <span class="attr">fecha</span>       CDATA  #REQUIRED
+    <span class="attr">cliente_ref</span> IDREF  #REQUIRED
+<span class="tag">&gt;</span>
+
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">linea</span> EMPTY<span class="tag">&gt;</span>
+<span class="tag">&lt;!ATTLIST</span> <span class="fn">linea</span>
+    <span class="attr">producto_ref</span> IDREF  #REQUIRED
+    <span class="attr">cantidad</span>     CDATA  #REQUIRED
+<span class="tag">&gt;</span>
+
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">nombre</span> (#PCDATA)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">apellido</span> (#PCDATA)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">telefono</span> (#PCDATA)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">email</span> (#PCDATA)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">nombre_prod</span> (#PCDATA)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">precio</span> (#PCDATA)<span class="tag">&gt;</span>
+<span class="tag">&lt;!ELEMENT</span> <span class="fn">descripcion</span> (#PCDATA)<span class="tag">&gt;</span></code></pre>
+
+<pre><code><span class="cm">&lt;!-- tienda.xml --&gt;</span>
+<span class="kw">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="tag">&lt;!DOCTYPE</span> tienda SYSTEM <span class="str">"tienda.dtd"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;tienda</span> <span class="attr">nombre=</span><span class="str">"MiTienda Online"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;cliente</span> <span class="attr">id=</span><span class="str">"c1"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;nombre&gt;</span>Ana<span class="tag">&lt;/nombre&gt;</span>
+        <span class="tag">&lt;apellido&gt;</span>García<span class="tag">&lt;/apellido&gt;</span>
+        <span class="tag">&lt;email&gt;</span>ana@correo.com<span class="tag">&lt;/email&gt;</span>
+    <span class="tag">&lt;/cliente&gt;</span>
+    <span class="tag">&lt;producto</span> <span class="attr">id=</span><span class="str">"p1"</span> <span class="attr">categoria=</span><span class="str">"electronica"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;nombre_prod&gt;</span>Teclado mecánico<span class="tag">&lt;/nombre_prod&gt;</span>
+        <span class="tag">&lt;precio&gt;</span>89.99<span class="tag">&lt;/precio&gt;</span>
+        <span class="tag">&lt;descripcion&gt;</span>Teclado con switches Cherry MX<span class="tag">&lt;/descripcion&gt;</span>
+    <span class="tag">&lt;/producto&gt;</span>
+    <span class="tag">&lt;pedido</span> <span class="attr">fecha=</span><span class="str">"2026-05-18"</span> <span class="attr">cliente_ref=</span><span class="str">"c1"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;linea</span> <span class="attr">producto_ref=</span><span class="str">"p1"</span> <span class="attr">cantidad=</span><span class="str">"2"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/pedido&gt;</span>
+<span class="tag">&lt;/tienda&gt;</span></code></pre>
+
+</main>
+
+<a href="index.html" class="btn back-btn shadow" title="Volver al inicio" id="btn-back" style="background:linear-gradient(135deg,#fccb90,#d57eeb);border:none;color:#fff">
+    <i class="bi bi-house-fill"></i>
+</a>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

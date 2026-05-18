@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSSQL / T-SQL — Wiki Técnica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body{background:#f8f9fa;font-family:'Segoe UI',system-ui,sans-serif}
+        .page-header{background:linear-gradient(135deg,#a18cd1,#fbc2eb);color:#fff;padding:2rem 1rem;border-radius:0 0 1.5rem 1.5rem;margin-bottom:1.5rem;text-align:center}
+        .page-header h1{font-weight:800;font-size:1.8rem}
+        pre{background:#1e1e2e;color:#cdd6f4;border-radius:.75rem;padding:1rem;overflow-x:auto;font-size:.85rem;line-height:1.5}
+        code{font-family:'Cascadia Code','Fira Code',monospace}
+        .kw{color:#cba6f7}.fn{color:#89b4fa}.str{color:#a6e3a1}.cm{color:#6c7086;font-style:italic}.num{color:#fab387}
+        .back-btn{position:fixed;bottom:1rem;right:1rem;z-index:1000;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+        h2{color:#a18cd1;font-weight:700;margin-top:2rem;border-bottom:3px solid #a18cd1;padding-bottom:.4rem}
+        h3{color:#495057;font-weight:600;margin-top:1.5rem}
+        .card{border:none;border-radius:1rem;margin-bottom:1rem}
+    </style>
+</head>
+<body>
+<header class="page-header">
+    <i class="bi bi-diagram-3" style="font-size:2.5rem"></i>
+    <h1>Microsoft SQL Server</h1>
+    <p class="mb-0 opacity-75">T-SQL — Stored Procedures, Triggers, Funciones</p>
+</header>
+
+<main class="container px-3 pb-5">
+
+<!-- ==================== INTRODUCCIÓN ==================== -->
+<h2><i class="bi bi-info-circle"></i> ¿Qué es T-SQL?</h2>
+<p><strong>Transact-SQL (T-SQL)</strong> es la extensión propietaria del lenguaje SQL utilizada por Microsoft SQL Server y Azure SQL Database. Añade capacidades procedimentales al SQL estándar: variables, control de flujo, manejo de errores, y más.</p>
+<div class="card shadow-sm">
+<div class="card-body">
+<strong>Diferencias clave con SQL estándar:</strong>
+<ul class="mb-0 mt-1">
+    <li><code>TOP</code> en lugar de <code>LIMIT</code> para limitar filas</li>
+    <li><code>OFFSET...FETCH</code> para paginación (SQL Server 2012+)</li>
+    <li>Variables con prefijo <code>@</code></li>
+    <li>Tablas temporales con <code>#</code> y <code>##</code></li>
+    <li>Manejo de errores con <code>TRY...CATCH</code></li>
+</ul>
+</div>
+</div>
+
+<!-- ==================== VARIABLES ==================== -->
+<h2><i class="bi bi-braces-asterisk"></i> Variables y Tipos</h2>
+<pre><code><span class="cm">-- Declarar y asignar variables</span>
+<span class="kw">DECLARE</span> @nombre   <span class="fn">NVARCHAR</span>(<span class="num">100</span>) = <span class="str">N'Carlos López'</span>;
+<span class="kw">DECLARE</span> @salario  <span class="fn">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>);
+<span class="kw">DECLARE</span> @fecha    <span class="fn">DATE</span> = <span class="fn">GETDATE</span>();
+
+<span class="cm">-- Asignar con SET o SELECT</span>
+<span class="kw">SET</span> @salario = <span class="num">45000.00</span>;
+
+<span class="kw">SELECT</span> @salario = salario
+<span class="kw">FROM</span> empleados
+<span class="kw">WHERE</span> nombre = @nombre;
+
+<span class="cm">-- Imprimir valor</span>
+<span class="kw">PRINT</span> <span class="str">'Salario: '</span> + <span class="fn">CAST</span>(@salario <span class="kw">AS</span> <span class="fn">NVARCHAR</span>(<span class="num">20</span>));</code></pre>
+
+<!-- ==================== PAGINACIÓN ==================== -->
+<h2><i class="bi bi-journal-text"></i> Paginación en MSSQL</h2>
+<pre><code><span class="cm">-- TOP: limitar resultados (sin OFFSET)</span>
+<span class="kw">SELECT TOP</span> <span class="num">10</span> nombre, salario
+<span class="kw">FROM</span> empleados
+<span class="kw">ORDER BY</span> salario <span class="kw">DESC</span>;
+
+<span class="cm">-- OFFSET...FETCH: paginación real (SQL Server 2012+)</span>
+<span class="kw">SELECT</span> nombre, salario
+<span class="kw">FROM</span> empleados
+<span class="kw">ORDER BY</span> id
+<span class="kw">OFFSET</span> <span class="num">20</span> <span class="kw">ROWS</span>          <span class="cm">-- Saltar las primeras 20 filas</span>
+<span class="kw">FETCH NEXT</span> <span class="num">10</span> <span class="kw">ROWS ONLY</span>; <span class="cm">-- Tomar las siguientes 10</span>
+
+<span class="cm">-- Paginación dinámica con variables</span>
+<span class="kw">DECLARE</span> @pagina <span class="fn">INT</span> = <span class="num">3</span>;
+<span class="kw">DECLARE</span> @filas  <span class="fn">INT</span> = <span class="num">10</span>;
+
+<span class="kw">SELECT</span> nombre, salario
+<span class="kw">FROM</span> empleados
+<span class="kw">ORDER BY</span> id
+<span class="kw">OFFSET</span> (@pagina - <span class="num">1</span>) * @filas <span class="kw">ROWS</span>
+<span class="kw">FETCH NEXT</span> @filas <span class="kw">ROWS ONLY</span>;</code></pre>
+
+<!-- ==================== CONTROL DE FLUJO ==================== -->
+<h2><i class="bi bi-signpost-split"></i> Control de Flujo</h2>
+<pre><code><span class="cm">-- IF...ELSE</span>
+<span class="kw">DECLARE</span> @total <span class="fn">INT</span>;
+<span class="kw">SELECT</span> @total = <span class="fn">COUNT</span>(*) <span class="kw">FROM</span> empleados;
+
+<span class="kw">IF</span> @total > <span class="num">100</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">PRINT</span> <span class="str">'Empresa grande: '</span> + <span class="fn">CAST</span>(@total <span class="kw">AS</span> <span class="fn">VARCHAR</span>);
+<span class="kw">END</span>
+<span class="kw">ELSE IF</span> @total > <span class="num">20</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">PRINT</span> <span class="str">'Empresa mediana'</span>;
+<span class="kw">END</span>
+<span class="kw">ELSE</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">PRINT</span> <span class="str">'Empresa pequeña'</span>;
+<span class="kw">END</span>;
+
+<span class="cm">-- WHILE</span>
+<span class="kw">DECLARE</span> @i <span class="fn">INT</span> = <span class="num">1</span>;
+<span class="kw">WHILE</span> @i &lt;= <span class="num">10</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">PRINT</span> <span class="str">'Iteración: '</span> + <span class="fn">CAST</span>(@i <span class="kw">AS</span> <span class="fn">VARCHAR</span>);
+    <span class="kw">SET</span> @i = @i + <span class="num">1</span>;
+<span class="kw">END</span>;</code></pre>
+
+<!-- ==================== STORED PROCEDURES ==================== -->
+<h2><i class="bi bi-gear"></i> Stored Procedures</h2>
+<p>Los procedimientos almacenados son bloques de T-SQL compilados y almacenados en el servidor. Mejoran el rendimiento, la reutilización y la seguridad.</p>
+
+<h3>Procedimiento básico con parámetros</h3>
+<pre><code><span class="kw">CREATE OR ALTER PROCEDURE</span> sp_BuscarEmpleados
+    @departamento  <span class="fn">NVARCHAR</span>(<span class="num">50</span>),
+    @salario_min   <span class="fn">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>) = <span class="num">0</span>,    <span class="cm">-- valor por defecto</span>
+    @total         <span class="fn">INT</span> <span class="kw">OUTPUT</span>              <span class="cm">-- parámetro de salida</span>
+<span class="kw">AS</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">SET NOCOUNT ON</span>; <span class="cm">-- No enviar mensajes de conteo</span>
+
+    <span class="kw">SELECT</span>
+        e.nombre,
+        e.salario,
+        d.nombre <span class="kw">AS</span> departamento
+    <span class="kw">FROM</span> empleados e
+    <span class="kw">INNER JOIN</span> departamentos d <span class="kw">ON</span> e.depto_id = d.id
+    <span class="kw">WHERE</span> d.nombre = @departamento
+      <span class="kw">AND</span> e.salario >= @salario_min
+    <span class="kw">ORDER BY</span> e.salario <span class="kw">DESC</span>;
+
+    <span class="cm">-- Asignar total al parámetro OUTPUT</span>
+    <span class="kw">SET</span> @total = <span class="fn">@@ROWCOUNT</span>;
+<span class="kw">END</span>;
+
+<span class="cm">-- Ejecutar el procedimiento</span>
+<span class="kw">DECLARE</span> @resultado <span class="fn">INT</span>;
+<span class="kw">EXEC</span> sp_BuscarEmpleados
+    @departamento = <span class="str">N'IT'</span>,
+    @salario_min  = <span class="num">30000</span>,
+    @total        = @resultado <span class="kw">OUTPUT</span>;
+
+<span class="kw">PRINT</span> <span class="str">'Encontrados: '</span> + <span class="fn">CAST</span>(@resultado <span class="kw">AS</span> <span class="fn">VARCHAR</span>);</code></pre>
+
+<h3>Procedimiento con manejo de errores</h3>
+<pre><code><span class="kw">CREATE PROCEDURE</span> sp_TransferirSaldo
+    @cuenta_origen   <span class="fn">INT</span>,
+    @cuenta_destino  <span class="fn">INT</span>,
+    @monto           <span class="fn">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>)
+<span class="kw">AS</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">SET NOCOUNT ON</span>;
+    <span class="kw">BEGIN TRY</span>
+        <span class="kw">BEGIN TRANSACTION</span>;
+
+            <span class="kw">UPDATE</span> cuentas <span class="kw">SET</span> saldo = saldo - @monto
+            <span class="kw">WHERE</span> id = @cuenta_origen;
+
+            <span class="kw">IF</span> (<span class="kw">SELECT</span> saldo <span class="kw">FROM</span> cuentas <span class="kw">WHERE</span> id = @cuenta_origen) &lt; <span class="num">0</span>
+                <span class="kw">THROW</span> <span class="num">50001</span>, <span class="str">'Saldo insuficiente'</span>, <span class="num">1</span>;
+
+            <span class="kw">UPDATE</span> cuentas <span class="kw">SET</span> saldo = saldo + @monto
+            <span class="kw">WHERE</span> id = @cuenta_destino;
+
+        <span class="kw">COMMIT TRANSACTION</span>;
+        <span class="kw">PRINT</span> <span class="str">'Transferencia exitosa'</span>;
+    <span class="kw">END TRY</span>
+    <span class="kw">BEGIN CATCH</span>
+        <span class="kw">ROLLBACK TRANSACTION</span>;
+        <span class="kw">PRINT</span> <span class="str">'ERROR: '</span> + <span class="fn">ERROR_MESSAGE</span>();
+        <span class="kw">PRINT</span> <span class="str">'Línea: '</span> + <span class="fn">CAST</span>(<span class="fn">ERROR_LINE</span>() <span class="kw">AS</span> <span class="fn">VARCHAR</span>);
+    <span class="kw">END CATCH</span>;
+<span class="kw">END</span>;</code></pre>
+
+<!-- ==================== FUNCIONES ==================== -->
+<h2><i class="bi bi-lightning"></i> Funciones Definidas por el Usuario</h2>
+
+<h3>Función Escalar</h3>
+<pre><code><span class="cm">-- Devuelve un único valor</span>
+<span class="kw">CREATE FUNCTION</span> fn_CalcularImpuesto(
+    @salario <span class="fn">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>)
+)
+<span class="kw">RETURNS</span> <span class="fn">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>)
+<span class="kw">AS</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">DECLARE</span> @impuesto <span class="fn">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>);
+    <span class="kw">SET</span> @impuesto = <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> @salario > <span class="num">60000</span> <span class="kw">THEN</span> @salario * <span class="num">0.30</span>
+        <span class="kw">WHEN</span> @salario > <span class="num">30000</span> <span class="kw">THEN</span> @salario * <span class="num">0.20</span>
+        <span class="kw">ELSE</span> @salario * <span class="num">0.10</span>
+    <span class="kw">END</span>;
+    <span class="kw">RETURN</span> @impuesto;
+<span class="kw">END</span>;
+
+<span class="cm">-- Uso</span>
+<span class="kw">SELECT</span> nombre, salario, dbo.fn_CalcularImpuesto(salario) <span class="kw">AS</span> impuesto
+<span class="kw">FROM</span> empleados;</code></pre>
+
+<h3>Función con Valor de Tabla (TVF)</h3>
+<pre><code><span class="cm">-- Devuelve una tabla como resultado</span>
+<span class="kw">CREATE FUNCTION</span> fn_EmpleadosPorDepto(@depto_id <span class="fn">INT</span>)
+<span class="kw">RETURNS TABLE</span>
+<span class="kw">AS</span>
+<span class="kw">RETURN</span> (
+    <span class="kw">SELECT</span> nombre, salario, fecha_alta
+    <span class="kw">FROM</span> empleados
+    <span class="kw">WHERE</span> depto_id = @depto_id
+);
+
+<span class="cm">-- Uso (como una tabla en FROM)</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> fn_EmpleadosPorDepto(<span class="num">3</span>)
+<span class="kw">WHERE</span> salario > <span class="num">30000</span>;</code></pre>
+
+<!-- ==================== TRIGGERS ==================== -->
+<h2><i class="bi bi-bell"></i> Triggers (Disparadores)</h2>
+<p>Un trigger es un bloque de código que se ejecuta automáticamente cuando ocurre un evento (INSERT, UPDATE, DELETE) en una tabla. SQL Server usa las pseudo-tablas <code>inserted</code> y <code>deleted</code>.</p>
+
+<h3>Trigger AFTER INSERT — Auditoría</h3>
+<pre><code><span class="cm">-- Tabla de auditoría</span>
+<span class="kw">CREATE TABLE</span> auditoria_empleados (
+    id         <span class="fn">INT</span> <span class="kw">IDENTITY</span>(<span class="num">1</span>,<span class="num">1</span>) <span class="kw">PRIMARY KEY</span>,
+    accion     <span class="fn">VARCHAR</span>(<span class="num">10</span>),
+    emp_id     <span class="fn">INT</span>,
+    nombre     <span class="fn">NVARCHAR</span>(<span class="num">100</span>),
+    fecha      <span class="fn">DATETIME</span> <span class="kw">DEFAULT</span> <span class="fn">GETDATE</span>(),
+    usuario    <span class="fn">NVARCHAR</span>(<span class="num">100</span>) <span class="kw">DEFAULT</span> <span class="fn">SUSER_SNAME</span>()
+);
+
+<span class="cm">-- Trigger que registra cada inserción</span>
+<span class="kw">CREATE TRIGGER</span> trg_Empleados_Insert
+<span class="kw">ON</span> empleados
+<span class="kw">AFTER INSERT</span>
+<span class="kw">AS</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">SET NOCOUNT ON</span>;
+    <span class="kw">INSERT INTO</span> auditoria_empleados (accion, emp_id, nombre)
+    <span class="kw">SELECT</span> <span class="str">'INSERT'</span>, id, nombre
+    <span class="kw">FROM</span> inserted;  <span class="cm">-- pseudo-tabla con las filas nuevas</span>
+<span class="kw">END</span>;</code></pre>
+
+<h3>Trigger AFTER UPDATE — Registro de cambios</h3>
+<pre><code><span class="kw">CREATE TRIGGER</span> trg_Empleados_Update
+<span class="kw">ON</span> empleados
+<span class="kw">AFTER UPDATE</span>
+<span class="kw">AS</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">SET NOCOUNT ON</span>;
+    <span class="cm">-- Solo registrar si cambió el salario</span>
+    <span class="kw">IF</span> <span class="fn">UPDATE</span>(salario)
+    <span class="kw">BEGIN</span>
+        <span class="kw">INSERT INTO</span> auditoria_empleados (accion, emp_id, nombre)
+        <span class="kw">SELECT</span> <span class="str">'UPDATE'</span>, i.id, i.nombre
+        <span class="kw">FROM</span> inserted i
+        <span class="kw">INNER JOIN</span> deleted d <span class="kw">ON</span> i.id = d.id
+        <span class="kw">WHERE</span> i.salario &lt;> d.salario; <span class="cm">-- realmente cambió</span>
+    <span class="kw">END</span>;
+<span class="kw">END</span>;</code></pre>
+
+<h3>Trigger INSTEAD OF — Prevenir eliminaciones</h3>
+<pre><code><span class="cm">-- En vez de eliminar, marca como inactivo</span>
+<span class="kw">CREATE TRIGGER</span> trg_Empleados_SoftDelete
+<span class="kw">ON</span> empleados
+<span class="kw">INSTEAD OF DELETE</span>
+<span class="kw">AS</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">SET NOCOUNT ON</span>;
+    <span class="kw">UPDATE</span> e
+    <span class="kw">SET</span> e.activo = <span class="num">0</span>,
+        e.fecha_baja = <span class="fn">GETDATE</span>()
+    <span class="kw">FROM</span> empleados e
+    <span class="kw">INNER JOIN</span> deleted d <span class="kw">ON</span> e.id = d.id;
+
+    <span class="kw">PRINT</span> <span class="str">'Soft delete aplicado a '</span>
+        + <span class="fn">CAST</span>(<span class="fn">@@ROWCOUNT</span> <span class="kw">AS</span> <span class="fn">VARCHAR</span>)
+        + <span class="str">' empleado(s)'</span>;
+<span class="kw">END</span>;</code></pre>
+
+<!-- ==================== TABLAS TEMPORALES ==================== -->
+<h2><i class="bi bi-table"></i> Tablas Temporales y Variables de Tabla</h2>
+<pre><code><span class="cm">-- Tabla temporal LOCAL (visible solo en la sesión actual)</span>
+<span class="kw">CREATE TABLE</span> #TempVentas (
+    producto  <span class="fn">VARCHAR</span>(<span class="num">100</span>),
+    total     <span class="fn">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>)
+);
+<span class="kw">INSERT INTO</span> #TempVentas
+<span class="kw">SELECT</span> producto, <span class="fn">SUM</span>(monto) <span class="kw">FROM</span> ventas <span class="kw">GROUP BY</span> producto;
+
+<span class="cm">-- Tabla temporal GLOBAL (visible para todas las sesiones)</span>
+<span class="kw">CREATE TABLE</span> ##GlobalTemp (id <span class="fn">INT</span>, dato <span class="fn">VARCHAR</span>(<span class="num">50</span>));
+
+<span class="cm">-- Variable de tabla (solo vive en el batch actual)</span>
+<span class="kw">DECLARE</span> @resumen <span class="kw">TABLE</span> (
+    departamento <span class="fn">VARCHAR</span>(<span class="num">50</span>),
+    total        <span class="fn">INT</span>
+);
+<span class="kw">INSERT INTO</span> @resumen
+<span class="kw">SELECT</span> d.nombre, <span class="fn">COUNT</span>(e.id)
+<span class="kw">FROM</span> departamentos d
+<span class="kw">LEFT JOIN</span> empleados e <span class="kw">ON</span> d.id = e.depto_id
+<span class="kw">GROUP BY</span> d.nombre;
+
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> @resumen;</code></pre>
+
+<!-- ==================== SQL DINÁMICO ==================== -->
+<h2><i class="bi bi-code-square"></i> SQL Dinámico</h2>
+<p>Permite construir y ejecutar sentencias SQL en tiempo de ejecución. Usar con <code>sp_executesql</code> para prevenir inyección SQL.</p>
+<pre><code><span class="kw">DECLARE</span> @tabla    <span class="fn">NVARCHAR</span>(<span class="num">128</span>) = <span class="str">N'empleados'</span>;
+<span class="kw">DECLARE</span> @columna  <span class="fn">NVARCHAR</span>(<span class="num">128</span>) = <span class="str">N'nombre'</span>;
+<span class="kw">DECLARE</span> @filtro   <span class="fn">NVARCHAR</span>(<span class="num">100</span>) = <span class="str">N'Ana%'</span>;
+<span class="kw">DECLARE</span> @sql      <span class="fn">NVARCHAR</span>(<span class="num">MAX</span>);
+
+<span class="cm">-- ✅ SEGURO: sp_executesql con parámetros</span>
+<span class="kw">SET</span> @sql = <span class="str">N'SELECT * FROM '</span> + <span class="fn">QUOTENAME</span>(@tabla)
+         + <span class="str">N' WHERE '</span> + <span class="fn">QUOTENAME</span>(@columna) + <span class="str">N' LIKE @p_filtro'</span>;
+
+<span class="kw">EXEC</span> sp_executesql @sql,
+    <span class="str">N'@p_filtro NVARCHAR(100)'</span>,
+    @p_filtro = @filtro;</code></pre>
+
+</main>
+
+<a href="index.html" class="btn btn-primary back-btn shadow" title="Volver al inicio" id="btn-back" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb);border:none">
+    <i class="bi bi-house-fill"></i>
+</a>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiki Técnica — Panel Principal</title>
+    <meta name="description" content="Wiki técnica interactiva con documentación detallada de SQL, MySQL, MSSQL, MongoDB, DTD y XSD.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --gradient-start: #667eea;
+            --gradient-end: #764ba2;
+        }
+        body {
+            background: #f0f2f5;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+        .hero {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: #fff;
+            padding: 3rem 1rem 2.5rem;
+            text-align: center;
+            border-radius: 0 0 2rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, .35);
+        }
+        .hero h1 { font-weight: 800; font-size: 2rem; }
+        .hero p  { opacity: .9; font-size: 1.05rem; max-width: 600px; margin: .5rem auto 0; }
+
+        .tech-card {
+            border: none;
+            border-radius: 1rem;
+            transition: transform .25s ease, box-shadow .25s ease;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .tech-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0,0,0,.12);
+            color: inherit;
+        }
+        .tech-card .card-body { padding: 1.5rem; }
+        .tech-card .icon-circle {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: .75rem;
+            color: #fff;
+        }
+        .tech-card h5 { font-weight: 700; margin-bottom: .4rem; }
+        .tech-card p  { font-size: .88rem; color: #6c757d; margin: 0; }
+
+        /* Colores únicos por tecnología */
+        .bg-sql      { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .bg-mysql     { background: linear-gradient(135deg, #f78ca0, #f9748f); }
+        .bg-mssql     { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+        .bg-mongo     { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .bg-dtd       { background: linear-gradient(135deg, #fccb90, #d57eeb); }
+        .bg-xsd       { background: linear-gradient(135deg, #fa709a, #fee140); }
+
+        .footer-text {
+            text-align: center;
+            color: #adb5bd;
+            font-size: .82rem;
+            padding: 2rem 0 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero -->
+    <header class="hero">
+        <h1><i class="bi bi-book"></i> Wiki Técnica</h1>
+        <p>Tu referencia rápida y completa sobre bases de datos y tecnologías de validación XML. Selecciona una tecnología para explorar.</p>
+    </header>
+
+    <!-- Dashboard Grid -->
+    <main class="container px-3">
+        <div class="row g-3">
+
+            <!-- SQL -->
+            <div class="col-6 col-md-4">
+                <a href="sql.html" class="tech-card card shadow-sm" id="card-sql">
+                    <div class="card-body">
+                        <div class="icon-circle bg-sql"><i class="bi bi-database"></i></div>
+                        <h5>SQL</h5>
+                        <p>Lenguaje estándar para bases de datos relacionales.</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- MySQL -->
+            <div class="col-6 col-md-4">
+                <a href="mysql.html" class="tech-card card shadow-sm" id="card-mysql">
+                    <div class="card-body">
+                        <div class="icon-circle bg-mysql"><i class="bi bi-server"></i></div>
+                        <h5>MySQL</h5>
+                        <p>Paginación, fechas, funciones específicas.</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- MSSQL -->
+            <div class="col-6 col-md-4">
+                <a href="mssql.html" class="tech-card card shadow-sm" id="card-mssql">
+                    <div class="card-body">
+                        <div class="icon-circle bg-mssql"><i class="bi bi-diagram-3"></i></div>
+                        <h5>MSSQL</h5>
+                        <p>T-SQL, Stored Procedures, Triggers.</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- MongoDB -->
+            <div class="col-6 col-md-4">
+                <a href="mongodb.html" class="tech-card card shadow-sm" id="card-mongo">
+                    <div class="card-body">
+                        <div class="icon-circle bg-mongo"><i class="bi bi-braces"></i></div>
+                        <h5>MongoDB</h5>
+                        <p>CRUD, NoSQL, tipos de bases de datos.</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- DTD -->
+            <div class="col-6 col-md-4">
+                <a href="dtd.html" class="tech-card card shadow-sm" id="card-dtd">
+                    <div class="card-body">
+                        <div class="icon-circle bg-dtd"><i class="bi bi-file-earmark-code"></i></div>
+                        <h5>DTD</h5>
+                        <p>Validación de documentos XML.</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- XSD -->
+            <div class="col-6 col-md-4">
+                <a href="xsd.html" class="tech-card card shadow-sm" id="card-xsd">
+                    <div class="card-body">
+                        <div class="icon-circle bg-xsd"><i class="bi bi-filetype-xml"></i></div>
+                        <h5>XSD</h5>
+                        <p>XML Schema Definition avanzado.</p>
+                    </div>
+                </a>
+            </div>
+
+        </div><!-- /row -->
+    </main>
+
+    <p class="footer-text">Wiki Técnica &copy; 2026 — Creada con Bootstrap 5</p>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

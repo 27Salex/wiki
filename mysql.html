@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySQL — Wiki Técnica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body{background:#f8f9fa;font-family:'Segoe UI',system-ui,sans-serif}
+        .page-header{background:linear-gradient(135deg,#f78ca0,#f9748f);color:#fff;padding:2rem 1rem;border-radius:0 0 1.5rem 1.5rem;margin-bottom:1.5rem;text-align:center}
+        .page-header h1{font-weight:800;font-size:1.8rem}
+        pre{background:#1e1e2e;color:#cdd6f4;border-radius:.75rem;padding:1rem;overflow-x:auto;font-size:.85rem;line-height:1.5}
+        code{font-family:'Cascadia Code','Fira Code',monospace}
+        .kw{color:#cba6f7}.fn{color:#89b4fa}.str{color:#a6e3a1}.cm{color:#6c7086;font-style:italic}.num{color:#fab387}
+        .back-btn{position:fixed;bottom:1rem;right:1rem;z-index:1000;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+        h2{color:#f9748f;font-weight:700;margin-top:2rem;border-bottom:3px solid #f9748f;padding-bottom:.4rem}
+        h3{color:#495057;font-weight:600;margin-top:1.5rem}
+        .card{border:none;border-radius:1rem;margin-bottom:1rem}
+        .alert-info{border-radius:.75rem}
+    </style>
+</head>
+<body>
+<header class="page-header">
+    <i class="bi bi-server" style="font-size:2.5rem"></i>
+    <h1>MySQL</h1>
+    <p class="mb-0 opacity-75">RDBMS de código abierto — Paginación, Fechas, Funciones</p>
+</header>
+
+<main class="container px-3 pb-5">
+
+<!-- ==================== INTRODUCCIÓN ==================== -->
+<h2><i class="bi bi-info-circle"></i> ¿Qué es MySQL?</h2>
+<p><strong>MySQL</strong> es un sistema de gestión de bases de datos relacional (RDBMS) de código abierto, propiedad de Oracle. Es uno de los más utilizados del mundo, especialmente en aplicaciones web (stack LAMP: Linux, Apache, MySQL, PHP). Usa el lenguaje SQL estándar con extensiones propias.</p>
+<div class="card shadow-sm">
+<div class="card-body">
+<strong>Características clave:</strong>
+<ul class="mb-0 mt-1">
+    <li>Alto rendimiento y escalabilidad</li>
+    <li>Soporte para múltiples motores de almacenamiento (InnoDB, MyISAM)</li>
+    <li>Replicación maestro-esclavo y maestro-maestro</li>
+    <li>Soporte completo de transacciones ACID (InnoDB)</li>
+    <li>Full-Text Search nativo</li>
+</ul>
+</div>
+</div>
+
+<!-- ==================== TIPOS DE DATOS ==================== -->
+<h2><i class="bi bi-list-ul"></i> Tipos de Datos en MySQL</h2>
+
+<h3>Numéricos</h3>
+<pre><code><span class="cm">-- Enteros (con rango y almacenamiento)</span>
+<span class="fn">TINYINT</span>       <span class="cm">-- 1 byte  (-128 a 127 / 0 a 255 UNSIGNED)</span>
+<span class="fn">SMALLINT</span>      <span class="cm">-- 2 bytes (-32768 a 32767)</span>
+<span class="fn">MEDIUMINT</span>     <span class="cm">-- 3 bytes</span>
+<span class="fn">INT</span>           <span class="cm">-- 4 bytes (-2,147 millones a 2,147 millones)</span>
+<span class="fn">BIGINT</span>        <span class="cm">-- 8 bytes</span>
+
+<span class="cm">-- Decimales</span>
+<span class="fn">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>)  <span class="cm">-- Exacto (ideal para dinero)</span>
+<span class="fn">FLOAT</span>          <span class="cm">-- 4 bytes, aproximado</span>
+<span class="fn">DOUBLE</span>         <span class="cm">-- 8 bytes, aproximado</span></code></pre>
+
+<h3>Texto</h3>
+<pre><code><span class="fn">CHAR</span>(<span class="num">50</span>)       <span class="cm">-- Longitud fija (rellena con espacios)</span>
+<span class="fn">VARCHAR</span>(<span class="num">255</span>)   <span class="cm">-- Longitud variable (máx 65,535 bytes)</span>
+<span class="fn">TEXT</span>            <span class="cm">-- Texto largo (hasta 64 KB)</span>
+<span class="fn">MEDIUMTEXT</span>      <span class="cm">-- Hasta 16 MB</span>
+<span class="fn">LONGTEXT</span>        <span class="cm">-- Hasta 4 GB</span>
+<span class="fn">ENUM</span>(<span class="str">'a'</span>,<span class="str">'b'</span>,<span class="str">'c'</span>) <span class="cm">-- Valor de una lista predefinida</span>
+<span class="fn">SET</span>(<span class="str">'x'</span>,<span class="str">'y'</span>,<span class="str">'z'</span>)  <span class="cm">-- Múltiples valores de una lista</span></code></pre>
+
+<h3>Fecha y Hora</h3>
+<pre><code><span class="fn">DATE</span>          <span class="cm">-- 'YYYY-MM-DD'</span>
+<span class="fn">TIME</span>          <span class="cm">-- 'HH:MM:SS'</span>
+<span class="fn">DATETIME</span>      <span class="cm">-- 'YYYY-MM-DD HH:MM:SS' (sin zona horaria)</span>
+<span class="fn">TIMESTAMP</span>     <span class="cm">-- Como DATETIME pero se almacena en UTC</span>
+<span class="fn">YEAR</span>          <span class="cm">-- Año de 4 dígitos</span></code></pre>
+
+<!-- ==================== AUTO_INCREMENT ==================== -->
+<h2><i class="bi bi-sort-numeric-up"></i> AUTO_INCREMENT</h2>
+<p>Genera valores numéricos únicos automáticamente para la clave primaria.</p>
+<pre><code><span class="kw">CREATE TABLE</span> productos (
+    id    <span class="fn">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+    nombre <span class="fn">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+    precio <span class="fn">DECIMAL</span>(<span class="num">8</span>,<span class="num">2</span>)
+);
+
+<span class="cm">-- El id se asigna solo</span>
+<span class="kw">INSERT INTO</span> productos (nombre, precio) <span class="kw">VALUES</span> (<span class="str">'Teclado'</span>, <span class="num">29.99</span>);
+<span class="kw">INSERT INTO</span> productos (nombre, precio) <span class="kw">VALUES</span> (<span class="str">'Ratón'</span>, <span class="num">15.50</span>);
+
+<span class="cm">-- Consultar el último ID insertado</span>
+<span class="kw">SELECT</span> <span class="fn">LAST_INSERT_ID</span>();
+
+<span class="cm">-- Reiniciar el contador</span>
+<span class="kw">ALTER TABLE</span> productos <span class="kw">AUTO_INCREMENT</span> = <span class="num">1</span>;</code></pre>
+
+<!-- ==================== PAGINACIÓN ==================== -->
+<h2><i class="bi bi-journal-text"></i> Paginación con LIMIT y OFFSET</h2>
+<p>MySQL usa <code>LIMIT</code> y <code>OFFSET</code> para paginar resultados. Es crucial para APIs REST y listados web.</p>
+<pre><code><span class="cm">-- Sintaxis básica: LIMIT filas OFFSET inicio</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> productos
+<span class="kw">ORDER BY</span> id
+<span class="kw">LIMIT</span> <span class="num">10</span> <span class="kw">OFFSET</span> <span class="num">0</span>;   <span class="cm">-- Página 1 (filas 1-10)</span>
+
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> productos
+<span class="kw">ORDER BY</span> id
+<span class="kw">LIMIT</span> <span class="num">10</span> <span class="kw">OFFSET</span> <span class="num">10</span>;  <span class="cm">-- Página 2 (filas 11-20)</span>
+
+<span class="cm">-- Sintaxis alternativa: LIMIT offset, count</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> productos
+<span class="kw">ORDER BY</span> id
+<span class="kw">LIMIT</span> <span class="num">20</span>, <span class="num">10</span>;            <span class="cm">-- Página 3 (filas 21-30)</span>
+
+<span class="cm">-- ✅ Paginación eficiente con cursor (evita OFFSET alto)</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> productos
+<span class="kw">WHERE</span> id > <span class="num">100</span>        <span class="cm">-- último ID de la página anterior</span>
+<span class="kw">ORDER BY</span> id
+<span class="kw">LIMIT</span> <span class="num">10</span>;</code></pre>
+
+<div class="alert alert-info">
+<i class="bi bi-lightbulb"></i> <strong>Tip:</strong> Para grandes volúmenes de datos, la paginación por cursor (<code>WHERE id > último_id</code>) es mucho más eficiente que <code>OFFSET</code>, ya que este último debe recorrer todas las filas anteriores.
+</div>
+
+<!-- ==================== FUNCIONES DE FECHA ==================== -->
+<h2><i class="bi bi-calendar-event"></i> Funciones de Fecha y Hora</h2>
+
+<h3>Obtener fecha/hora actual</h3>
+<pre><code><span class="kw">SELECT</span>
+    <span class="fn">NOW</span>()            <span class="kw">AS</span> fecha_hora,      <span class="cm">-- 2026-05-18 14:30:00</span>
+    <span class="fn">CURDATE</span>()        <span class="kw">AS</span> solo_fecha,      <span class="cm">-- 2026-05-18</span>
+    <span class="fn">CURTIME</span>()        <span class="kw">AS</span> solo_hora,       <span class="cm">-- 14:30:00</span>
+    <span class="fn">UNIX_TIMESTAMP</span>() <span class="kw">AS</span> timestamp_unix;   <span class="cm">-- 1779367800</span></code></pre>
+
+<h3>Extraer partes de una fecha</h3>
+<pre><code><span class="kw">SELECT</span>
+    <span class="fn">YEAR</span>(fecha_alta)    <span class="kw">AS</span> anio,
+    <span class="fn">MONTH</span>(fecha_alta)   <span class="kw">AS</span> mes,
+    <span class="fn">DAY</span>(fecha_alta)     <span class="kw">AS</span> dia,
+    <span class="fn">HOUR</span>(fecha_alta)    <span class="kw">AS</span> hora,
+    <span class="fn">DAYNAME</span>(fecha_alta) <span class="kw">AS</span> nombre_dia,   <span class="cm">-- 'Monday'</span>
+    <span class="fn">MONTHNAME</span>(fecha_alta) <span class="kw">AS</span> nombre_mes, <span class="cm">-- 'May'</span>
+    <span class="fn">QUARTER</span>(fecha_alta) <span class="kw">AS</span> trimestre,
+    <span class="fn">WEEK</span>(fecha_alta)    <span class="kw">AS</span> semana
+<span class="kw">FROM</span> empleados;</code></pre>
+
+<h3>Aritmética de fechas</h3>
+<pre><code><span class="cm">-- Sumar / restar intervalos</span>
+<span class="kw">SELECT</span>
+    <span class="fn">DATE_ADD</span>(<span class="str">'2026-01-15'</span>, <span class="kw">INTERVAL</span> <span class="num">30</span> <span class="kw">DAY</span>)   <span class="kw">AS</span> mas_30_dias,
+    <span class="fn">DATE_SUB</span>(<span class="fn">NOW</span>(), <span class="kw">INTERVAL</span> <span class="num">3</span> <span class="kw">MONTH</span>)      <span class="kw">AS</span> hace_3_meses,
+    <span class="fn">DATE_ADD</span>(<span class="fn">NOW</span>(), <span class="kw">INTERVAL</span> <span class="num">1</span> <span class="kw">YEAR</span>)       <span class="kw">AS</span> proximo_anio;
+
+<span class="cm">-- Diferencia entre fechas</span>
+<span class="kw">SELECT</span>
+    <span class="fn">DATEDIFF</span>(<span class="str">'2026-12-31'</span>, <span class="fn">CURDATE</span>())     <span class="kw">AS</span> dias_restantes,
+    <span class="fn">TIMESTAMPDIFF</span>(<span class="kw">MONTH</span>, fecha_alta, <span class="fn">NOW</span>()) <span class="kw">AS</span> meses_trabajados
+<span class="kw">FROM</span> empleados;</code></pre>
+
+<h3>Formatear fechas</h3>
+<pre><code><span class="kw">SELECT</span>
+    <span class="fn">DATE_FORMAT</span>(<span class="fn">NOW</span>(), <span class="str">'%d/%m/%Y'</span>)          <span class="kw">AS</span> formato_es,    <span class="cm">-- 18/05/2026</span>
+    <span class="fn">DATE_FORMAT</span>(<span class="fn">NOW</span>(), <span class="str">'%W, %d de %M %Y'</span>)  <span class="kw">AS</span> formato_largo, <span class="cm">-- Monday, 18 de May 2026</span>
+    <span class="fn">DATE_FORMAT</span>(<span class="fn">NOW</span>(), <span class="str">'%H:%i:%s'</span>)          <span class="kw">AS</span> hora_24h;      <span class="cm">-- 14:30:00</span>
+
+<span class="cm">-- Convertir texto a fecha</span>
+<span class="kw">SELECT</span> <span class="fn">STR_TO_DATE</span>(<span class="str">'18-05-2026'</span>, <span class="str">'%d-%m-%Y'</span>) <span class="kw">AS</span> fecha;</code></pre>
+
+<!-- ==================== FUNCIONES DE TEXTO ==================== -->
+<h2><i class="bi bi-fonts"></i> Funciones de Texto</h2>
+<pre><code><span class="kw">SELECT</span>
+    <span class="fn">CONCAT</span>(nombre, <span class="str">' '</span>, apellido)       <span class="kw">AS</span> nombre_completo,
+    <span class="fn">CONCAT_WS</span>(<span class="str">', '</span>, ciudad, pais)       <span class="kw">AS</span> ubicacion,
+    <span class="fn">UPPER</span>(nombre)                       <span class="kw">AS</span> mayusculas,
+    <span class="fn">LOWER</span>(email)                        <span class="kw">AS</span> minusculas,
+    <span class="fn">LENGTH</span>(nombre)                      <span class="kw">AS</span> longitud_bytes,
+    <span class="fn">CHAR_LENGTH</span>(nombre)                 <span class="kw">AS</span> longitud_chars,
+    <span class="fn">SUBSTRING</span>(nombre, <span class="num">1</span>, <span class="num">3</span>)             <span class="kw">AS</span> primeras_3,
+    <span class="fn">TRIM</span>(nombre)                        <span class="kw">AS</span> sin_espacios,
+    <span class="fn">REPLACE</span>(email, <span class="str">'@old.com'</span>, <span class="str">'@new.com'</span>) <span class="kw">AS</span> email_nuevo,
+    <span class="fn">LEFT</span>(nombre, <span class="num">5</span>)                     <span class="kw">AS</span> izquierda_5,
+    <span class="fn">RIGHT</span>(nombre, <span class="num">5</span>)                    <span class="kw">AS</span> derecha_5,
+    <span class="fn">LPAD</span>(id, <span class="num">5</span>, <span class="str">'0'</span>)                    <span class="kw">AS</span> id_con_ceros   <span class="cm">-- '00042'</span>
+<span class="kw">FROM</span> empleados;</code></pre>
+
+<!-- ==================== CONTROL DE FLUJO ==================== -->
+<h2><i class="bi bi-signpost-split"></i> Control de Flujo</h2>
+<pre><code><span class="cm">-- IF / CASE dentro de consultas</span>
+<span class="kw">SELECT</span>
+    nombre,
+    salario,
+    <span class="fn">IF</span>(salario > <span class="num">40000</span>, <span class="str">'Alto'</span>, <span class="str">'Normal'</span>) <span class="kw">AS</span> nivel_if,
+    <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> salario >= <span class="num">60000</span> <span class="kw">THEN</span> <span class="str">'Senior'</span>
+        <span class="kw">WHEN</span> salario >= <span class="num">35000</span> <span class="kw">THEN</span> <span class="str">'Mid'</span>
+        <span class="kw">ELSE</span> <span class="str">'Junior'</span>
+    <span class="kw">END</span> <span class="kw">AS</span> nivel_case,
+    <span class="fn">IFNULL</span>(telefono, <span class="str">'No disponible'</span>)    <span class="kw">AS</span> tel,
+    <span class="fn">COALESCE</span>(telefono, movil, <span class="str">'N/A'</span>)     <span class="kw">AS</span> contacto
+<span class="kw">FROM</span> empleados;</code></pre>
+
+<!-- ==================== FULL-TEXT SEARCH ==================== -->
+<h2><i class="bi bi-search"></i> Full-Text Search</h2>
+<p>MySQL permite búsquedas de texto completo en columnas CHAR, VARCHAR y TEXT usando índices FULLTEXT.</p>
+<pre><code><span class="cm">-- 1. Crear índice FULLTEXT</span>
+<span class="kw">ALTER TABLE</span> articulos
+<span class="kw">ADD FULLTEXT INDEX</span> idx_ft_titulo_cuerpo (titulo, cuerpo);
+
+<span class="cm">-- 2. Búsqueda en lenguaje natural (por relevancia)</span>
+<span class="kw">SELECT</span> titulo, <span class="fn">MATCH</span>(titulo, cuerpo) <span class="fn">AGAINST</span>(<span class="str">'base datos relacional'</span>) <span class="kw">AS</span> relevancia
+<span class="kw">FROM</span> articulos
+<span class="kw">WHERE</span> <span class="fn">MATCH</span>(titulo, cuerpo) <span class="fn">AGAINST</span>(<span class="str">'base datos relacional'</span>)
+<span class="kw">ORDER BY</span> relevancia <span class="kw">DESC</span>;
+
+<span class="cm">-- 3. Búsqueda booleana (operadores +, -, *, "...")</span>
+<span class="kw">SELECT</span> titulo
+<span class="kw">FROM</span> articulos
+<span class="kw">WHERE</span> <span class="fn">MATCH</span>(titulo, cuerpo)
+      <span class="fn">AGAINST</span>(<span class="str">'+MySQL -Oracle "stored procedure"'</span> <span class="kw">IN BOOLEAN MODE</span>);</code></pre>
+
+<!-- ==================== ENUM y SET ==================== -->
+<h2><i class="bi bi-ui-radios"></i> ENUM y SET</h2>
+<pre><code><span class="cm">-- ENUM: un solo valor de la lista</span>
+<span class="kw">CREATE TABLE</span> tareas (
+    id     <span class="fn">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+    titulo <span class="fn">VARCHAR</span>(<span class="num">200</span>),
+    estado <span class="fn">ENUM</span>(<span class="str">'pendiente'</span>, <span class="str">'en_progreso'</span>, <span class="str">'completada'</span>, <span class="str">'cancelada'</span>)
+           <span class="kw">DEFAULT</span> <span class="str">'pendiente'</span>
+);
+
+<span class="cm">-- SET: múltiples valores de la lista (separados por coma)</span>
+<span class="kw">CREATE TABLE</span> usuarios (
+    id          <span class="fn">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+    nombre      <span class="fn">VARCHAR</span>(<span class="num">100</span>),
+    permisos    <span class="fn">SET</span>(<span class="str">'leer'</span>, <span class="str">'escribir'</span>, <span class="str">'eliminar'</span>, <span class="str">'admin'</span>)
+);
+<span class="kw">INSERT INTO</span> usuarios (nombre, permisos)
+<span class="kw">VALUES</span> (<span class="str">'Ana'</span>, <span class="str">'leer,escribir'</span>);
+
+<span class="cm">-- Buscar usuarios con permiso específico</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> usuarios
+<span class="kw">WHERE</span> <span class="fn">FIND_IN_SET</span>(<span class="str">'admin'</span>, permisos) > <span class="num">0</span>;</code></pre>
+
+<!-- ==================== PROCEDIMIENTOS ALMACENADOS MYSQL ==================== -->
+<h2><i class="bi bi-gear"></i> Procedimientos Almacenados en MySQL</h2>
+<pre><code><span class="cm">-- Cambiar delimitador para poder usar ; dentro del procedimiento</span>
+<span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE PROCEDURE</span> sp_empleados_por_depto(
+    <span class="kw">IN</span>  p_depto_id  <span class="fn">INT</span>,
+    <span class="kw">OUT</span> p_total     <span class="fn">INT</span>
+)
+<span class="kw">BEGIN</span>
+    <span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">INTO</span> p_total
+    <span class="kw">FROM</span> empleados
+    <span class="kw">WHERE</span> depto_id = p_depto_id;
+
+    <span class="kw">SELECT</span> nombre, salario
+    <span class="kw">FROM</span> empleados
+    <span class="kw">WHERE</span> depto_id = p_depto_id
+    <span class="kw">ORDER BY</span> salario <span class="kw">DESC</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cm">-- Llamar al procedimiento</span>
+<span class="kw">CALL</span> sp_empleados_por_depto(<span class="num">3</span>, @total);
+<span class="kw">SELECT</span> @total <span class="kw">AS</span> total_empleados;</code></pre>
+
+</main>
+
+<a href="index.html" class="btn btn-danger back-btn shadow" title="Volver al inicio" id="btn-back">
+    <i class="bi bi-house-fill"></i>
+</a>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

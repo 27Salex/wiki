@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB &amp; NoSQL — Wiki Técnica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body{background:#f8f9fa;font-family:'Segoe UI',system-ui,sans-serif}
+        .page-header{background:linear-gradient(135deg,#43e97b,#38f9d7);color:#fff;padding:2rem 1rem;border-radius:0 0 1.5rem 1.5rem;margin-bottom:1.5rem;text-align:center}
+        .page-header h1{font-weight:800;font-size:1.8rem;text-shadow:0 1px 3px rgba(0,0,0,.15)}
+        pre{background:#1e1e2e;color:#cdd6f4;border-radius:.75rem;padding:1rem;overflow-x:auto;font-size:.85rem;line-height:1.5}
+        code{font-family:'Cascadia Code','Fira Code',monospace}
+        .kw{color:#cba6f7}.fn{color:#89b4fa}.str{color:#a6e3a1}.cm{color:#6c7086;font-style:italic}.num{color:#fab387}.op{color:#f38ba8}
+        .back-btn{position:fixed;bottom:1rem;right:1rem;z-index:1000;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+        h2{color:#0d9e5a;font-weight:700;margin-top:2rem;border-bottom:3px solid #43e97b;padding-bottom:.4rem}
+        h3{color:#495057;font-weight:600;margin-top:1.5rem}
+        .card{border:none;border-radius:1rem;margin-bottom:1rem}
+        .table{font-size:.9rem}
+    </style>
+</head>
+<body>
+<header class="page-header">
+    <i class="bi bi-braces" style="font-size:2.5rem"></i>
+    <h1>MongoDB &amp; NoSQL</h1>
+    <p class="mb-0 opacity-75">Base de datos documental — CRUD, Aggregation, Tipos NoSQL</p>
+</header>
+
+<main class="container px-3 pb-5">
+
+<!-- ==================== PRINCIPIOS NoSQL ==================== -->
+<h2><i class="bi bi-lightbulb"></i> Principios de las Bases de Datos NoSQL</h2>
+<p>Las bases de datos NoSQL (Not Only SQL) surgen como alternativa a las bases de datos relacionales para manejar grandes volúmenes de datos, alta disponibilidad y esquemas flexibles.</p>
+
+<h3>Teorema CAP</h3>
+<p>Un sistema distribuido solo puede garantizar <strong>dos de tres</strong> propiedades simultáneamente:</p>
+<div class="card shadow-sm">
+<div class="card-body">
+<ul class="mb-0">
+    <li><strong>C (Consistency):</strong> Todos los nodos ven los mismos datos al mismo tiempo.</li>
+    <li><strong>A (Availability):</strong> Cada petición recibe una respuesta, aunque no sea la más reciente.</li>
+    <li><strong>P (Partition Tolerance):</strong> El sistema sigue funcionando aunque haya fallos de red entre nodos.</li>
+</ul>
+</div>
+</div>
+
+<h3>Principios BASE (vs ACID)</h3>
+<div class="table-responsive">
+<table class="table table-bordered table-sm mt-2">
+<thead class="table-dark"><tr><th>ACID (Relacional)</th><th>BASE (NoSQL)</th></tr></thead>
+<tbody>
+<tr><td>Atomicity</td><td><strong>B</strong>asically <strong>A</strong>vailable</td></tr>
+<tr><td>Consistency</td><td><strong>S</strong>oft state</td></tr>
+<tr><td>Isolation</td><td><strong>E</strong>ventual consistency</td></tr>
+<tr><td>Durability</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<p>BASE prioriza la <strong>disponibilidad</strong> y acepta que los datos pueden no ser consistentes de forma inmediata, pero lo serán eventualmente.</p>
+
+<!-- ==================== TIPOS NoSQL ==================== -->
+<h2><i class="bi bi-grid-3x3-gap"></i> Tipos de Bases de Datos NoSQL</h2>
+
+<h3>1. Documental (Document Store)</h3>
+<p>Almacenan datos como documentos JSON/BSON. Cada documento puede tener una estructura diferente.</p>
+<div class="card shadow-sm"><div class="card-body">
+<strong>Ejemplos:</strong> MongoDB, CouchDB, Amazon DocumentDB<br>
+<strong>Uso ideal:</strong> Catálogos de productos, gestión de contenido, perfiles de usuario.
+</div></div>
+
+<h3>2. Clave-Valor (Key-Value Store)</h3>
+<p>El modelo más simple: cada dato se almacena como un par clave → valor.</p>
+<div class="card shadow-sm"><div class="card-body">
+<strong>Ejemplos:</strong> Redis, Amazon DynamoDB, Memcached<br>
+<strong>Uso ideal:</strong> Caché, sesiones de usuario, contadores en tiempo real.
+</div></div>
+
+<h3>3. Columnar (Wide-Column Store)</h3>
+<p>Organizan datos en familias de columnas. Cada fila puede tener columnas diferentes.</p>
+<div class="card shadow-sm"><div class="card-body">
+<strong>Ejemplos:</strong> Apache Cassandra, HBase, Google Bigtable<br>
+<strong>Uso ideal:</strong> Datos de series temporales, analítica a gran escala, IoT.
+</div></div>
+
+<h3>4. Grafos (Graph Database)</h3>
+<p>Almacenan datos como nodos (entidades) y aristas (relaciones). Optimizadas para recorrer relaciones complejas.</p>
+<div class="card shadow-sm"><div class="card-body">
+<strong>Ejemplos:</strong> Neo4j, Amazon Neptune, ArangoDB<br>
+<strong>Uso ideal:</strong> Redes sociales, detección de fraudes, motores de recomendación.
+</div></div>
+
+<!-- ==================== INTRO MONGODB ==================== -->
+<h2><i class="bi bi-info-circle"></i> ¿Qué es MongoDB?</h2>
+<p><strong>MongoDB</strong> es una base de datos NoSQL documental de código abierto. Almacena datos en documentos <strong>BSON</strong> (Binary JSON) dentro de <strong>colecciones</strong> (equivalentes a tablas). No requiere esquema fijo.</p>
+<div class="card shadow-sm">
+<div class="card-body">
+<strong>Conceptos clave:</strong>
+<ul class="mb-0 mt-1">
+    <li><strong>Database</strong> → Contenedor de colecciones</li>
+    <li><strong>Collection</strong> → Grupo de documentos (≈ tabla)</li>
+    <li><strong>Document</strong> → Registro individual en BSON (≈ fila)</li>
+    <li><strong>Field</strong> → Par clave-valor dentro de un documento (≈ columna)</li>
+    <li><strong>_id</strong> → Clave primaria autogenerada (ObjectId)</li>
+</ul>
+</div>
+</div>
+
+<!-- ==================== CRUD ==================== -->
+<h2><i class="bi bi-pencil-square"></i> Operaciones CRUD</h2>
+
+<h3>CREATE — Insertar documentos</h3>
+<pre><code><span class="cm">// Insertar un documento</span>
+db.empleados.<span class="fn">insertOne</span>({
+    nombre: <span class="str">"Ana García"</span>,
+    email: <span class="str">"ana@empresa.com"</span>,
+    salario: <span class="num">35000</span>,
+    departamento: <span class="str">"IT"</span>,
+    habilidades: [<span class="str">"JavaScript"</span>, <span class="str">"Python"</span>, <span class="str">"MongoDB"</span>],
+    direccion: {
+        calle: <span class="str">"Gran Vía 42"</span>,
+        ciudad: <span class="str">"Madrid"</span>,
+        cp: <span class="str">"28013"</span>
+    },
+    fechaAlta: <span class="kw">new</span> <span class="fn">Date</span>(<span class="str">"2025-01-15"</span>),
+    activo: <span class="kw">true</span>
+});
+
+<span class="cm">// Insertar múltiples documentos</span>
+db.empleados.<span class="fn">insertMany</span>([
+    { nombre: <span class="str">"Carlos López"</span>, salario: <span class="num">42000</span>, departamento: <span class="str">"Ventas"</span> },
+    { nombre: <span class="str">"María Ruiz"</span>,   salario: <span class="num">38000</span>, departamento: <span class="str">"IT"</span> }
+]);</code></pre>
+
+<h3>READ — Consultar documentos</h3>
+<pre><code><span class="cm">// Buscar todos</span>
+db.empleados.<span class="fn">find</span>();
+
+<span class="cm">// Buscar con filtro</span>
+db.empleados.<span class="fn">find</span>({ departamento: <span class="str">"IT"</span> });
+
+<span class="cm">// Buscar uno solo</span>
+db.empleados.<span class="fn">findOne</span>({ email: <span class="str">"ana@empresa.com"</span> });
+
+<span class="cm">// Proyección: mostrar solo ciertos campos</span>
+db.empleados.<span class="fn">find</span>(
+    { departamento: <span class="str">"IT"</span> },
+    { nombre: <span class="num">1</span>, salario: <span class="num">1</span>, _id: <span class="num">0</span> }  <span class="cm">// 1 = incluir, 0 = excluir</span>
+);
+
+<span class="cm">// Operadores de comparación</span>
+db.empleados.<span class="fn">find</span>({ salario: { <span class="op">$gt</span>: <span class="num">30000</span> } });    <span class="cm">// mayor que</span>
+db.empleados.<span class="fn">find</span>({ salario: { <span class="op">$gte</span>: <span class="num">30000</span> } });   <span class="cm">// mayor o igual</span>
+db.empleados.<span class="fn">find</span>({ salario: { <span class="op">$lt</span>: <span class="num">50000</span> } });    <span class="cm">// menor que</span>
+db.empleados.<span class="fn">find</span>({ salario: { <span class="op">$lte</span>: <span class="num">50000</span> } });   <span class="cm">// menor o igual</span>
+db.empleados.<span class="fn">find</span>({ salario: { <span class="op">$ne</span>: <span class="num">40000</span> } });    <span class="cm">// distinto de</span>
+db.empleados.<span class="fn">find</span>({ departamento: { <span class="op">$in</span>: [<span class="str">"IT"</span>, <span class="str">"Ventas"</span>] } });
+
+<span class="cm">// Operadores lógicos</span>
+db.empleados.<span class="fn">find</span>({
+    <span class="op">$and</span>: [
+        { salario: { <span class="op">$gte</span>: <span class="num">30000</span> } },
+        { departamento: <span class="str">"IT"</span> }
+    ]
+});
+
+db.empleados.<span class="fn">find</span>({
+    <span class="op">$or</span>: [
+        { departamento: <span class="str">"IT"</span> },
+        { salario: { <span class="op">$gt</span>: <span class="num">50000</span> } }
+    ]
+});
+
+<span class="cm">// Ordenar, limitar, saltar</span>
+db.empleados.<span class="fn">find</span>()
+    .<span class="fn">sort</span>({ salario: -<span class="num">1</span> })  <span class="cm">// -1 = descendente, 1 = ascendente</span>
+    .<span class="fn">skip</span>(<span class="num">10</span>)               <span class="cm">// saltar los primeros 10</span>
+    .<span class="fn">limit</span>(<span class="num">5</span>);              <span class="cm">// tomar solo 5</span>
+
+<span class="cm">// Búsqueda en documentos anidados</span>
+db.empleados.<span class="fn">find</span>({ <span class="str">"direccion.ciudad"</span>: <span class="str">"Madrid"</span> });
+
+<span class="cm">// Búsqueda en arrays</span>
+db.empleados.<span class="fn">find</span>({ habilidades: <span class="str">"Python"</span> });          <span class="cm">// contiene "Python"</span>
+db.empleados.<span class="fn">find</span>({ habilidades: { <span class="op">$all</span>: [<span class="str">"Python"</span>, <span class="str">"MongoDB"</span>] } }); <span class="cm">// contiene ambos</span>
+db.empleados.<span class="fn">find</span>({ habilidades: { <span class="op">$size</span>: <span class="num">3</span> } });     <span class="cm">// array de tamaño 3</span></code></pre>
+
+<h3>UPDATE — Actualizar documentos</h3>
+<pre><code><span class="cm">// Actualizar un campo (usa $set)</span>
+db.empleados.<span class="fn">updateOne</span>(
+    { email: <span class="str">"ana@empresa.com"</span> },
+    { <span class="op">$set</span>: { salario: <span class="num">38000</span>, departamento: <span class="str">"Data"</span> } }
+);
+
+<span class="cm">// Incrementar un valor numérico</span>
+db.empleados.<span class="fn">updateOne</span>(
+    { email: <span class="str">"ana@empresa.com"</span> },
+    { <span class="op">$inc</span>: { salario: <span class="num">3000</span> } }  <span class="cm">// suma 3000 al salario actual</span>
+);
+
+<span class="cm">// Actualizar múltiples documentos</span>
+db.empleados.<span class="fn">updateMany</span>(
+    { departamento: <span class="str">"IT"</span> },
+    { <span class="op">$set</span>: { bono: <span class="num">2000</span> } }
+);
+
+<span class="cm">// Añadir elemento a un array</span>
+db.empleados.<span class="fn">updateOne</span>(
+    { email: <span class="str">"ana@empresa.com"</span> },
+    { <span class="op">$push</span>: { habilidades: <span class="str">"TypeScript"</span> } }
+);
+
+<span class="cm">// Eliminar un campo</span>
+db.empleados.<span class="fn">updateOne</span>(
+    { email: <span class="str">"ana@empresa.com"</span> },
+    { <span class="op">$unset</span>: { bono: <span class="str">""</span> } }
+);
+
+<span class="cm">// Reemplazar documento completo</span>
+db.empleados.<span class="fn">replaceOne</span>(
+    { email: <span class="str">"ana@empresa.com"</span> },
+    { nombre: <span class="str">"Ana García"</span>, email: <span class="str">"ana@empresa.com"</span>, salario: <span class="num">40000</span> }
+);</code></pre>
+
+<h3>DELETE — Eliminar documentos</h3>
+<pre><code><span class="cm">// Eliminar uno</span>
+db.empleados.<span class="fn">deleteOne</span>({ email: <span class="str">"ana@empresa.com"</span> });
+
+<span class="cm">// Eliminar múltiples</span>
+db.empleados.<span class="fn">deleteMany</span>({ activo: <span class="kw">false</span> });
+
+<span class="cm">// Eliminar TODOS los documentos de la colección</span>
+db.empleados.<span class="fn">deleteMany</span>({});
+
+<span class="cm">// Eliminar la colección entera (estructura incluida)</span>
+db.empleados.<span class="fn">drop</span>();</code></pre>
+
+<!-- ==================== AGGREGATION ==================== -->
+<h2><i class="bi bi-funnel"></i> Aggregation Pipeline</h2>
+<p>El pipeline de agregación procesa documentos a través de una serie de <strong>etapas</strong> (stages), donde cada etapa transforma los datos.</p>
+<pre><code>db.empleados.<span class="fn">aggregate</span>([
+    <span class="cm">// 1. Filtrar: solo activos del departamento IT</span>
+    { <span class="op">$match</span>: {
+        activo: <span class="kw">true</span>,
+        departamento: <span class="str">"IT"</span>
+    }},
+
+    <span class="cm">// 2. Agrupar: por departamento, calcular estadísticas</span>
+    { <span class="op">$group</span>: {
+        _id: <span class="str">"$departamento"</span>,
+        totalEmpleados: { <span class="op">$sum</span>: <span class="num">1</span> },
+        salarioMedio:   { <span class="op">$avg</span>: <span class="str">"$salario"</span> },
+        salarioMax:     { <span class="op">$max</span>: <span class="str">"$salario"</span> },
+        salarioMin:     { <span class="op">$min</span>: <span class="str">"$salario"</span> },
+        nombres:        { <span class="op">$push</span>: <span class="str">"$nombre"</span> }
+    }},
+
+    <span class="cm">// 3. Proyectar: dar formato a la salida</span>
+    { <span class="op">$project</span>: {
+        departamento: <span class="str">"$_id"</span>,
+        totalEmpleados: <span class="num">1</span>,
+        salarioMedio: { <span class="op">$round</span>: [<span class="str">"$salarioMedio"</span>, <span class="num">2</span>] },
+        _id: <span class="num">0</span>
+    }},
+
+    <span class="cm">// 4. Ordenar: por salario medio descendente</span>
+    { <span class="op">$sort</span>: { salarioMedio: -<span class="num">1</span> } },
+
+    <span class="cm">// 5. Limitar resultados</span>
+    { <span class="op">$limit</span>: <span class="num">10</span> }
+]);</code></pre>
+
+<h3>$lookup — JOIN entre colecciones</h3>
+<pre><code><span class="cm">// Equivalente a LEFT JOIN en SQL</span>
+db.empleados.<span class="fn">aggregate</span>([
+    { <span class="op">$lookup</span>: {
+        from: <span class="str">"departamentos"</span>,       <span class="cm">// colección a unir</span>
+        localField: <span class="str">"depto_id"</span>,       <span class="cm">// campo en empleados</span>
+        foreignField: <span class="str">"_id"</span>,          <span class="cm">// campo en departamentos</span>
+        as: <span class="str">"info_departamento"</span>       <span class="cm">// nombre del array resultante</span>
+    }},
+    { <span class="op">$unwind</span>: <span class="str">"$info_departamento"</span> } <span class="cm">// desaplanar el array</span>
+]);</code></pre>
+
+<!-- ==================== ÍNDICES ==================== -->
+<h2><i class="bi bi-speedometer2"></i> Índices en MongoDB</h2>
+<pre><code><span class="cm">// Índice simple (ascendente)</span>
+db.empleados.<span class="fn">createIndex</span>({ email: <span class="num">1</span> });
+
+<span class="cm">// Índice único</span>
+db.empleados.<span class="fn">createIndex</span>({ email: <span class="num">1</span> }, { unique: <span class="kw">true</span> });
+
+<span class="cm">// Índice compuesto</span>
+db.empleados.<span class="fn">createIndex</span>({ departamento: <span class="num">1</span>, salario: -<span class="num">1</span> });
+
+<span class="cm">// Índice de texto (para búsquedas full-text)</span>
+db.articulos.<span class="fn">createIndex</span>({ titulo: <span class="str">"text"</span>, contenido: <span class="str">"text"</span> });
+db.articulos.<span class="fn">find</span>({ <span class="op">$text</span>: { <span class="op">$search</span>: <span class="str">"mongodb tutorial"</span> } });
+
+<span class="cm">// Ver todos los índices</span>
+db.empleados.<span class="fn">getIndexes</span>();
+
+<span class="cm">// Eliminar un índice</span>
+db.empleados.<span class="fn">dropIndex</span>(<span class="str">"email_1"</span>);</code></pre>
+
+</main>
+
+<a href="index.html" class="btn btn-success back-btn shadow" title="Volver al inicio" id="btn-back">
+    <i class="bi bi-house-fill"></i>
+</a>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XSD — Wiki Técnica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body{background:#f8f9fa;font-family:'Segoe UI',system-ui,sans-serif}
+        .page-header{background:linear-gradient(135deg,#fa709a,#fee140);color:#fff;padding:2rem 1rem;border-radius:0 0 1.5rem 1.5rem;margin-bottom:1.5rem;text-align:center}
+        .page-header h1{font-weight:800;font-size:1.8rem;text-shadow:0 1px 3px rgba(0,0,0,.1)}
+        pre{background:#1e1e2e;color:#cdd6f4;border-radius:.75rem;padding:1rem;overflow-x:auto;font-size:.85rem;line-height:1.5}
+        code{font-family:'Cascadia Code','Fira Code',monospace}
+        .kw{color:#cba6f7}.fn{color:#89b4fa}.str{color:#a6e3a1}.cm{color:#6c7086;font-style:italic}.num{color:#fab387}.tag{color:#f38ba8}.attr{color:#f9e2af}
+        .back-btn{position:fixed;bottom:1rem;right:1rem;z-index:1000;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+        h2{color:#fa709a;font-weight:700;margin-top:2rem;border-bottom:3px solid #fa709a;padding-bottom:.4rem}
+        h3{color:#495057;font-weight:600;margin-top:1.5rem}
+        .card{border:none;border-radius:1rem;margin-bottom:1rem}
+    </style>
+</head>
+<body>
+<header class="page-header">
+    <i class="bi bi-filetype-xml" style="font-size:2.5rem"></i>
+    <h1>XML Schema Definition (XSD)</h1>
+    <p class="mb-0 opacity-75">Validación avanzada de XML — Tipos de datos y Restricciones</p>
+</header>
+
+<main class="container px-3 pb-5">
+
+<!-- ==================== INTRODUCCIÓN ==================== -->
+<h2><i class="bi bi-info-circle"></i> ¿Qué es XSD?</h2>
+<p><strong>XSD (XML Schema Definition)</strong> es la alternativa moderna y potente a los DTD. Describe la estructura de un documento XML, pero a diferencia del DTD, un esquema XSD está escrito en sintaxis XML e incorpora un sólido sistema de <strong>tipos de datos</strong> y <strong>namespaces</strong>.</p>
+<div class="card shadow-sm">
+<div class="card-body">
+<strong>Ventajas de XSD sobre DTD:</strong>
+<ul class="mb-0 mt-1">
+    <li>Está escrito en XML (no requiere aprender otra sintaxis).</li>
+    <li>Soporta tipos de datos (enteros, fechas, booleanos, etc.).</li>
+    <li>Permite crear tipos de datos personalizados.</li>
+    <li>Soporta namespaces para evitar colisiones de nombres.</li>
+    <li>Permite aplicar restricciones (facets) muy detalladas a los datos.</li>
+</ul>
+</div>
+</div>
+
+<!-- ==================== ESTRUCTURA BÁSICA ==================== -->
+<h2><i class="bi bi-braces"></i> Estructura Básica de un XSD</h2>
+<p>Todo documento XSD tiene como elemento raíz <code>&lt;xs:schema&gt;</code>.</p>
+<pre><code><span class="kw">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="tag">&lt;xs:schema</span> <span class="attr">xmlns:xs=</span><span class="str">"http://www.w3.org/2001/XMLSchema"</span><span class="tag">&gt;</span>
+
+    <span class="cm">&lt;!-- Definición del elemento raíz --&gt;</span>
+    <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"nota"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;xs:complexType&gt;</span>
+            <span class="tag">&lt;xs:sequence&gt;</span>
+                <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"para"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+                <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"de"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+                <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"titulo"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+                <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"cuerpo"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+            <span class="tag">&lt;/xs:sequence&gt;</span>
+        <span class="tag">&lt;/xs:complexType&gt;</span>
+    <span class="tag">&lt;/xs:element&gt;</span>
+
+<span class="tag">&lt;/xs:schema&gt;</span></code></pre>
+
+<!-- ==================== TIPOS SIMPLES Y COMPLEJOS ==================== -->
+<h2><i class="bi bi-layers"></i> Tipos Simples vs Tipos Complejos</h2>
+
+<h3>Tipos Simples (Simple Type)</h3>
+<p>Un elemento de tipo simple <strong>solo contiene texto</strong>. No puede contener otros elementos ni tener atributos.</p>
+<pre><code><span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"edad"</span> <span class="attr">type=</span><span class="str">"xs:integer"</span><span class="tag">/&gt;</span>
+<span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"precio"</span> <span class="attr">type=</span><span class="str">"xs:decimal"</span><span class="tag">/&gt;</span>
+<span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"fechaNacimiento"</span> <span class="attr">type=</span><span class="str">"xs:date"</span><span class="tag">/&gt;</span></code></pre>
+
+<h3>Tipos Complejos (Complex Type)</h3>
+<p>Un elemento de tipo complejo contiene <strong>otros elementos</strong> y/o <strong>atributos</strong>.</p>
+<pre><code><span class="cm">&lt;!-- Elemento que contiene otros elementos --&gt;</span>
+<span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"empleado"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:complexType&gt;</span>
+        <span class="tag">&lt;xs:sequence&gt;</span>
+            <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"nombre"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+            <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"salario"</span> <span class="attr">type=</span><span class="str">"xs:decimal"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;/xs:sequence&gt;</span>
+        <span class="cm">&lt;!-- Atributo del elemento empleado --&gt;</span>
+        <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"id"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">use=</span><span class="str">"required"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/xs:complexType&gt;</span>
+<span class="tag">&lt;/xs:element&gt;</span></code></pre>
+
+<!-- ==================== INDICADORES ==================== -->
+<h2><i class="bi bi-arrows-expand"></i> Indicadores (Order, Occurrence, Group)</h2>
+
+<h3>Indicadores de Orden</h3>
+<pre><code><span class="cm">&lt;!-- sequence: los elementos deben aparecer en este orden exacto --&gt;</span>
+<span class="tag">&lt;xs:sequence&gt;</span>
+    <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"nombre"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"apellidos"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+<span class="tag">&lt;/xs:sequence&gt;</span>
+
+<span class="cm">&lt;!-- all: los elementos pueden aparecer en cualquier orden, pero solo una vez --&gt;</span>
+<span class="tag">&lt;xs:all&gt;</span>
+    <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"telefono"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"email"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+<span class="tag">&lt;/xs:all&gt;</span>
+
+<span class="cm">&lt;!-- choice: solo uno de los elementos puede aparecer --&gt;</span>
+<span class="tag">&lt;xs:choice&gt;</span>
+    <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"tarjeta"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"transferencia"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+<span class="tag">&lt;/xs:choice&gt;</span></code></pre>
+
+<h3>Indicadores de Ocurrencia (minOccurs, maxOccurs)</h3>
+<p>Equivalen a los cuantificadores <code>?</code>, <code>*</code>, <code>+</code> de DTD.</p>
+<pre><code><span class="cm">&lt;!-- Opcional (min 0, max 1) equivalente a ? --&gt;</span>
+<span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"segundoNombre"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">minOccurs=</span><span class="str">"0"</span><span class="tag">/&gt;</span>
+
+<span class="cm">&lt;!-- Al menos uno (min 1, max ilimitado) equivalente a + --&gt;</span>
+<span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"telefono"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">minOccurs=</span><span class="str">"1"</span> <span class="attr">maxOccurs=</span><span class="str">"unbounded"</span><span class="tag">/&gt;</span>
+
+<span class="cm">&lt;!-- Cero o más (min 0, max ilimitado) equivalente a * --&gt;</span>
+<span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"hijo"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">minOccurs=</span><span class="str">"0"</span> <span class="attr">maxOccurs=</span><span class="str">"unbounded"</span><span class="tag">/&gt;</span>
+
+<span class="cm">&lt;!-- Exactamente 3 --&gt;</span>
+<span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"intento"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">minOccurs=</span><span class="str">"3"</span> <span class="attr">maxOccurs=</span><span class="str">"3"</span><span class="tag">/&gt;</span></code></pre>
+
+<!-- ==================== RESTRICCIONES (FACETS) ==================== -->
+<h2><i class="bi bi-shield-check"></i> Restricciones (Facets)</h2>
+<p>Permiten definir validaciones precisas sobre los datos (longitud, rangos, expresiones regulares, etc.).</p>
+
+<h3>Rango de valores (minInclusive, maxInclusive)</h3>
+<pre><code><span class="tag">&lt;xs:simpleType</span> <span class="attr">name=</span><span class="str">"edadValida"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:restriction</span> <span class="attr">base=</span><span class="str">"xs:integer"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;xs:minInclusive</span> <span class="attr">value=</span><span class="str">"18"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;xs:maxInclusive</span> <span class="attr">value=</span><span class="str">"120"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/xs:restriction&gt;</span>
+<span class="tag">&lt;/xs:simpleType&gt;</span></code></pre>
+
+<h3>Lista de valores (Enumeration)</h3>
+<pre><code><span class="tag">&lt;xs:simpleType</span> <span class="attr">name=</span><span class="str">"tallaRopa"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:restriction</span> <span class="attr">base=</span><span class="str">"xs:string"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;xs:enumeration</span> <span class="attr">value=</span><span class="str">"S"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;xs:enumeration</span> <span class="attr">value=</span><span class="str">"M"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;xs:enumeration</span> <span class="attr">value=</span><span class="str">"L"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;xs:enumeration</span> <span class="attr">value=</span><span class="str">"XL"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/xs:restriction&gt;</span>
+<span class="tag">&lt;/xs:simpleType&gt;</span></code></pre>
+
+<h3>Patrones (Expresiones Regulares)</h3>
+<pre><code><span class="cm">&lt;!-- Validar un código postal de 5 dígitos --&gt;</span>
+<span class="tag">&lt;xs:simpleType</span> <span class="attr">name=</span><span class="str">"codigoPostal"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:restriction</span> <span class="attr">base=</span><span class="str">"xs:string"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;xs:pattern</span> <span class="attr">value=</span><span class="str">"[0-9]{5}"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/xs:restriction&gt;</span>
+<span class="tag">&lt;/xs:simpleType&gt;</span></code></pre>
+
+<h3>Longitud de cadenas (Length)</h3>
+<pre><code><span class="tag">&lt;xs:simpleType</span> <span class="attr">name=</span><span class="str">"password"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:restriction</span> <span class="attr">base=</span><span class="str">"xs:string"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;xs:minLength</span> <span class="attr">value=</span><span class="str">"8"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;xs:maxLength</span> <span class="attr">value=</span><span class="str">"20"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/xs:restriction&gt;</span>
+<span class="tag">&lt;/xs:simpleType&gt;</span></code></pre>
+
+<!-- ==================== EJEMPLO COMPLETO ==================== -->
+<h2><i class="bi bi-file-earmark-check"></i> Ejemplo Completo (XML y XSD)</h2>
+
+<h3>Archivo XSD (empresa.xsd)</h3>
+<pre><code><span class="kw">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="tag">&lt;xs:schema</span> <span class="attr">xmlns:xs=</span><span class="str">"http://www.w3.org/2001/XMLSchema"</span><span class="tag">&gt;</span>
+
+    <span class="cm">&lt;!-- Definición de tipos simples --&gt;</span>
+    <span class="tag">&lt;xs:simpleType</span> <span class="attr">name=</span><span class="str">"tipoDNI"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;xs:restriction</span> <span class="attr">base=</span><span class="str">"xs:string"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;xs:pattern</span> <span class="attr">value=</span><span class="str">"[0-9]{8}[A-Z]"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;/xs:restriction&gt;</span>
+    <span class="tag">&lt;/xs:simpleType&gt;</span>
+
+    <span class="cm">&lt;!-- Definición del elemento raíz --&gt;</span>
+    <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"empresa"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;xs:complexType&gt;</span>
+            <span class="tag">&lt;xs:sequence&gt;</span>
+                <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"empleado"</span> <span class="attr">maxOccurs=</span><span class="str">"unbounded"</span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;xs:complexType&gt;</span>
+                        <span class="tag">&lt;xs:sequence&gt;</span>
+                            <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"nombre"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+                            <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"apellidos"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+                            <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"dni"</span> <span class="attr">type=</span><span class="str">"tipoDNI"</span><span class="tag">/&gt;</span>
+                            <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"fecha_alta"</span> <span class="attr">type=</span><span class="str">"xs:date"</span><span class="tag">/&gt;</span>
+                        <span class="tag">&lt;/xs:sequence&gt;</span>
+                        <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"id"</span> <span class="attr">type=</span><span class="str">"xs:positiveInteger"</span> <span class="attr">use=</span><span class="str">"required"</span><span class="tag">/&gt;</span>
+                    <span class="tag">&lt;/xs:complexType&gt;</span>
+                <span class="tag">&lt;/xs:element&gt;</span>
+            <span class="tag">&lt;/xs:sequence&gt;</span>
+        <span class="tag">&lt;/xs:complexType&gt;</span>
+    <span class="tag">&lt;/xs:element&gt;</span>
+
+<span class="tag">&lt;/xs:schema&gt;</span></code></pre>
+
+<h3>Archivo XML (datos.xml)</h3>
+<p>Así se asocia el archivo XML con su esquema XSD para validación.</p>
+<pre><code><span class="kw">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="tag">&lt;empresa</span> <span class="attr">xmlns:xsi=</span><span class="str">"http://www.w3.org/2001/XMLSchema-instance"</span>
+         <span class="attr">xsi:noNamespaceSchemaLocation=</span><span class="str">"empresa.xsd"</span><span class="tag">&gt;</span>
+
+    <span class="tag">&lt;empleado</span> <span class="attr">id=</span><span class="str">"1"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;nombre&gt;</span>Juan<span class="tag">&lt;/nombre&gt;</span>
+        <span class="tag">&lt;apellidos&gt;</span>Pérez Gómez<span class="tag">&lt;/apellidos&gt;</span>
+        <span class="tag">&lt;dni&gt;</span>12345678A<span class="tag">&lt;/dni&gt;</span>
+        <span class="tag">&lt;fecha_alta&gt;</span>2026-05-18<span class="tag">&lt;/fecha_alta&gt;</span>
+    <span class="tag">&lt;/empleado&gt;</span>
+
+    <span class="tag">&lt;empleado</span> <span class="attr">id=</span><span class="str">"2"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;nombre&gt;</span>María<span class="tag">&lt;/nombre&gt;</span>
+        <span class="tag">&lt;apellidos&gt;</span>López Ruiz<span class="tag">&lt;/apellidos&gt;</span>
+        <span class="tag">&lt;dni&gt;</span>87654321B<span class="tag">&lt;/dni&gt;</span>
+        <span class="tag">&lt;fecha_alta&gt;</span>2025-10-01<span class="tag">&lt;/fecha_alta&gt;</span>
+    <span class="tag">&lt;/empleado&gt;</span>
+
+<span class="tag">&lt;/empresa&gt;</span></code></pre>
+
+<!-- ==================== TIPOS DE DATOS BUILT-IN ==================== -->
+<h2><i class="bi bi-list-check"></i> Tipos de Datos Predefinidos</h2>
+<p>XSD incluye un amplio catálogo de tipos de datos listos para usar. A continuación los más habituales:</p>
+<div class="table-responsive">
+<table class="table table-bordered table-sm">
+<thead class="table-dark"><tr><th>Tipo XSD</th><th>Descripción</th><th>Ejemplo válido</th></tr></thead>
+<tbody>
+<tr><td><code>xs:string</code></td><td>Cadena de texto libre</td><td><code>"Hola mundo"</code></td></tr>
+<tr><td><code>xs:integer</code></td><td>Entero (sin decimales)</td><td><code>42</code></td></tr>
+<tr><td><code>xs:decimal</code></td><td>Número con decimales</td><td><code>19.99</code></td></tr>
+<tr><td><code>xs:boolean</code></td><td>Verdadero o falso</td><td><code>true</code> / <code>false</code></td></tr>
+<tr><td><code>xs:date</code></td><td>Fecha (YYYY-MM-DD)</td><td><code>2026-05-18</code></td></tr>
+<tr><td><code>xs:time</code></td><td>Hora (HH:MM:SS)</td><td><code>14:30:00</code></td></tr>
+<tr><td><code>xs:dateTime</code></td><td>Fecha y hora combinadas</td><td><code>2026-05-18T14:30:00</code></td></tr>
+<tr><td><code>xs:positiveInteger</code></td><td>Entero mayor que 0</td><td><code>1</code></td></tr>
+<tr><td><code>xs:nonNegativeInteger</code></td><td>Entero ≥ 0</td><td><code>0</code></td></tr>
+<tr><td><code>xs:float</code></td><td>Punto flotante 32 bits</td><td><code>3.14</code></td></tr>
+<tr><td><code>xs:anyURI</code></td><td>URI / URL</td><td><code>https://ejemplo.com</code></td></tr>
+<tr><td><code>xs:ID</code></td><td>Identificador único</td><td><code>prod_001</code></td></tr>
+<tr><td><code>xs:IDREF</code></td><td>Referencia a un ID</td><td><code>prod_001</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ==================== ATRIBUTOS ==================== -->
+<h2><i class="bi bi-tags"></i> Declaración de Atributos</h2>
+<p>Los atributos se declaran dentro de un <code>complexType</code> con <code>&lt;xs:attribute&gt;</code>.</p>
+<pre><code><span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"producto"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:complexType&gt;</span>
+        <span class="tag">&lt;xs:sequence&gt;</span>
+            <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"nombre"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;/xs:sequence&gt;</span>
+
+        <span class="cm">&lt;!-- Atributo obligatorio --&gt;</span>
+        <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"codigo"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">use=</span><span class="str">"required"</span><span class="tag">/&gt;</span>
+
+        <span class="cm">&lt;!-- Atributo opcional (por defecto) --&gt;</span>
+        <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"color"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">use=</span><span class="str">"optional"</span><span class="tag">/&gt;</span>
+
+        <span class="cm">&lt;!-- Atributo con valor por defecto --&gt;</span>
+        <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"moneda"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">default=</span><span class="str">"EUR"</span><span class="tag">/&gt;</span>
+
+        <span class="cm">&lt;!-- Atributo con valor fijo (no se puede cambiar) --&gt;</span>
+        <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"version"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">fixed=</span><span class="str">"2.0"</span><span class="tag">/&gt;</span>
+
+        <span class="cm">&lt;!-- Atributo con tipo personalizado --&gt;</span>
+        <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"talla"</span> <span class="attr">type=</span><span class="str">"tallaRopa"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/xs:complexType&gt;</span>
+<span class="tag">&lt;/xs:element&gt;</span></code></pre>
+
+<!-- ==================== EXTENSIÓN Y RESTRICCIÓN DE TIPOS ==================== -->
+<h2><i class="bi bi-diagram-3"></i> Extensión y Restricción de Tipos Complejos</h2>
+<p>XSD permite crear tipos que <strong>heredan</strong> de otros, ya sea añadiendo campos (extensión) o limitándolos (restricción).</p>
+
+<h3>Extensión (extension) — Herencia</h3>
+<pre><code><span class="cm">&lt;!-- Tipo base --&gt;</span>
+<span class="tag">&lt;xs:complexType</span> <span class="attr">name=</span><span class="str">"personaType"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:sequence&gt;</span>
+        <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"nombre"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"email"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/xs:sequence&gt;</span>
+<span class="tag">&lt;/xs:complexType&gt;</span>
+
+<span class="cm">&lt;!-- Tipo extendido: hereda de personaType y añade campos --&gt;</span>
+<span class="tag">&lt;xs:complexType</span> <span class="attr">name=</span><span class="str">"empleadoType"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:complexContent&gt;</span>
+        <span class="tag">&lt;xs:extension</span> <span class="attr">base=</span><span class="str">"personaType"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;xs:sequence&gt;</span>
+                <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"salario"</span> <span class="attr">type=</span><span class="str">"xs:decimal"</span><span class="tag">/&gt;</span>
+                <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"departamento"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+            <span class="tag">&lt;/xs:sequence&gt;</span>
+            <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"id"</span> <span class="attr">type=</span><span class="str">"xs:positiveInteger"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;/xs:extension&gt;</span>
+    <span class="tag">&lt;/xs:complexContent&gt;</span>
+<span class="tag">&lt;/xs:complexType&gt;</span>
+
+<span class="cm">&lt;!-- Uso: empleado tendrá nombre, email, salario, departamento + id --&gt;</span>
+<span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"empleado"</span> <span class="attr">type=</span><span class="str">"empleadoType"</span><span class="tag">/&gt;</span></code></pre>
+
+<h3>Restricción de Tipo Simple (simpleContent + restriction)</h3>
+<pre><code><span class="cm">&lt;!-- Elemento con texto simple + atributo (simpleContent) --&gt;</span>
+<span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"precio"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:complexType&gt;</span>
+        <span class="tag">&lt;xs:simpleContent&gt;</span>
+            <span class="tag">&lt;xs:extension</span> <span class="attr">base=</span><span class="str">"xs:decimal"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"moneda"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">use=</span><span class="str">"required"</span><span class="tag">/&gt;</span>
+            <span class="tag">&lt;/xs:extension&gt;</span>
+        <span class="tag">&lt;/xs:simpleContent&gt;</span>
+    <span class="tag">&lt;/xs:complexType&gt;</span>
+<span class="tag">&lt;/xs:element&gt;</span>
+<span class="cm">&lt;!-- XML válido: &lt;precio moneda="EUR"&gt;29.99&lt;/precio&gt; --&gt;</span></code></pre>
+
+<!-- ==================== CONTENIDO MIXTO ==================== -->
+<h2><i class="bi bi-body-text"></i> Contenido Mixto (Mixed Content)</h2>
+<p>Permite que un elemento contenga tanto texto libre como elementos hijos entremezclados.</p>
+<pre><code><span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"parrafo"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:complexType</span> <span class="attr">mixed=</span><span class="str">"true"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;xs:sequence&gt;</span>
+            <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"negrita"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">minOccurs=</span><span class="str">"0"</span> <span class="attr">maxOccurs=</span><span class="str">"unbounded"</span><span class="tag">/&gt;</span>
+            <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"cursiva"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">minOccurs=</span><span class="str">"0"</span> <span class="attr">maxOccurs=</span><span class="str">"unbounded"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;/xs:sequence&gt;</span>
+    <span class="tag">&lt;/xs:complexType&gt;</span>
+<span class="tag">&lt;/xs:element&gt;</span>
+
+<span class="cm">&lt;!-- XML válido: --&gt;</span>
+<span class="cm">&lt;!-- &lt;parrafo&gt;Esto es &lt;negrita&gt;importante&lt;/negrita&gt; y esto es &lt;cursiva&gt;énfasis&lt;/cursiva&gt;.&lt;/parrafo&gt; --&gt;</span></code></pre>
+
+<!-- ==================== ELEMENTOS VACÍOS ==================== -->
+<h2><i class="bi bi-dash-square"></i> Elementos Vacíos</h2>
+<p>Un elemento que <strong>no tiene contenido</strong> (ni texto ni hijos), pero puede tener atributos.</p>
+<pre><code><span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"imagen"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:complexType&gt;</span>
+        <span class="cm">&lt;!-- Sin xs:sequence ni contenido = elemento vacío --&gt;</span>
+        <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"src"</span> <span class="attr">type=</span><span class="str">"xs:anyURI"</span> <span class="attr">use=</span><span class="str">"required"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"alt"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">use=</span><span class="str">"required"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"ancho"</span> <span class="attr">type=</span><span class="str">"xs:positiveInteger"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/xs:complexType&gt;</span>
+<span class="tag">&lt;/xs:element&gt;</span>
+<span class="cm">&lt;!-- XML: &lt;imagen src="foto.jpg" alt="Logo" ancho="200"/&gt; --&gt;</span></code></pre>
+
+<!-- ==================== GRUPOS REUTILIZABLES ==================== -->
+<h2><i class="bi bi-collection"></i> Grupos Reutilizables</h2>
+
+<h3>group — Grupo de elementos</h3>
+<pre><code><span class="cm">&lt;!-- Definir un grupo reutilizable --&gt;</span>
+<span class="tag">&lt;xs:group</span> <span class="attr">name=</span><span class="str">"datosContacto"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:sequence&gt;</span>
+        <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"telefono"</span> <span class="attr">type=</span><span class="str">"xs:string"</span> <span class="attr">minOccurs=</span><span class="str">"0"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"email"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"web"</span> <span class="attr">type=</span><span class="str">"xs:anyURI"</span> <span class="attr">minOccurs=</span><span class="str">"0"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/xs:sequence&gt;</span>
+<span class="tag">&lt;/xs:group&gt;</span>
+
+<span class="cm">&lt;!-- Reutilizar en múltiples tipos complejos --&gt;</span>
+<span class="tag">&lt;xs:complexType</span> <span class="attr">name=</span><span class="str">"clienteType"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:sequence&gt;</span>
+        <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"nombre"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;xs:group</span> <span class="attr">ref=</span><span class="str">"datosContacto"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/xs:sequence&gt;</span>
+<span class="tag">&lt;/xs:complexType&gt;</span>
+
+<span class="tag">&lt;xs:complexType</span> <span class="attr">name=</span><span class="str">"proveedorType"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:sequence&gt;</span>
+        <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"razon_social"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;xs:group</span> <span class="attr">ref=</span><span class="str">"datosContacto"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/xs:sequence&gt;</span>
+<span class="tag">&lt;/xs:complexType&gt;</span></code></pre>
+
+<h3>attributeGroup — Grupo de atributos</h3>
+<pre><code><span class="tag">&lt;xs:attributeGroup</span> <span class="attr">name=</span><span class="str">"metadatos"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"creado_por"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"fecha_creacion"</span> <span class="attr">type=</span><span class="str">"xs:date"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;xs:attribute</span> <span class="attr">name=</span><span class="str">"version"</span> <span class="attr">type=</span><span class="str">"xs:positiveInteger"</span> <span class="attr">default=</span><span class="str">"1"</span><span class="tag">/&gt;</span>
+<span class="tag">&lt;/xs:attributeGroup&gt;</span>
+
+<span class="cm">&lt;!-- Reutilizar --&gt;</span>
+<span class="tag">&lt;xs:complexType</span> <span class="attr">name=</span><span class="str">"documentoType"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;xs:sequence&gt;</span>
+        <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"titulo"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/xs:sequence&gt;</span>
+    <span class="tag">&lt;xs:attributeGroup</span> <span class="attr">ref=</span><span class="str">"metadatos"</span><span class="tag">/&gt;</span>
+<span class="tag">&lt;/xs:complexType&gt;</span></code></pre>
+
+<!-- ==================== NAMESPACES ==================== -->
+<h2><i class="bi bi-globe2"></i> Namespaces en XSD</h2>
+<p>Los namespaces evitan conflictos de nombres cuando se combinan múltiples esquemas.</p>
+<pre><code><span class="cm">&lt;!-- XSD con targetNamespace --&gt;</span>
+<span class="kw">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="tag">&lt;xs:schema</span>
+    <span class="attr">xmlns:xs=</span><span class="str">"http://www.w3.org/2001/XMLSchema"</span>
+    <span class="attr">targetNamespace=</span><span class="str">"http://www.miempresa.com/esquema"</span>
+    <span class="attr">xmlns:emp=</span><span class="str">"http://www.miempresa.com/esquema"</span>
+    <span class="attr">elementFormDefault=</span><span class="str">"qualified"</span><span class="tag">&gt;</span>
+
+    <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"empresa"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;xs:complexType&gt;</span>
+            <span class="tag">&lt;xs:sequence&gt;</span>
+                <span class="tag">&lt;xs:element</span> <span class="attr">name=</span><span class="str">"nombre"</span> <span class="attr">type=</span><span class="str">"xs:string"</span><span class="tag">/&gt;</span>
+            <span class="tag">&lt;/xs:sequence&gt;</span>
+        <span class="tag">&lt;/xs:complexType&gt;</span>
+    <span class="tag">&lt;/xs:element&gt;</span>
+<span class="tag">&lt;/xs:schema&gt;</span>
+
+<span class="cm">&lt;!-- XML que usa el namespace --&gt;</span>
+<span class="tag">&lt;emp:empresa</span>
+    <span class="attr">xmlns:emp=</span><span class="str">"http://www.miempresa.com/esquema"</span>
+    <span class="attr">xmlns:xsi=</span><span class="str">"http://www.w3.org/2001/XMLSchema-instance"</span>
+    <span class="attr">xsi:schemaLocation=</span><span class="str">"http://www.miempresa.com/esquema empresa.xsd"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;emp:nombre&gt;</span>TechCorp<span class="tag">&lt;/emp:nombre&gt;</span>
+<span class="tag">&lt;/emp:empresa&gt;</span></code></pre>
+
+<!-- ==================== DTD vs XSD ==================== -->
+<h2><i class="bi bi-arrow-left-right"></i> Comparativa DTD vs XSD</h2>
+<div class="table-responsive">
+<table class="table table-bordered table-sm">
+<thead class="table-dark"><tr><th>Característica</th><th>DTD</th><th>XSD</th></tr></thead>
+<tbody>
+<tr><td>Sintaxis</td><td>Propia (no XML)</td><td>XML</td></tr>
+<tr><td>Tipos de datos</td><td>Muy limitados (CDATA)</td><td>+44 tipos predefinidos</td></tr>
+<tr><td>Herencia de tipos</td><td>No</td><td>Sí (extension / restriction)</td></tr>
+<tr><td>Namespaces</td><td>No</td><td>Sí</td></tr>
+<tr><td>Cardinalidad precisa</td><td>Solo ?, +, *</td><td>minOccurs / maxOccurs exactos</td></tr>
+<tr><td>Restricciones (facets)</td><td>No</td><td>Sí (pattern, range, length…)</td></tr>
+<tr><td>Grupos reutilizables</td><td>Limitado (entidades %)</td><td>Sí (group, attributeGroup)</td></tr>
+<tr><td>Complejidad</td><td>Sencillo</td><td>Mayor curva de aprendizaje</td></tr>
+</tbody>
+</table>
+</div>
+
+</main>
+
+<a href="index.html" class="btn back-btn shadow" title="Volver al inicio" id="btn-back" style="background:linear-gradient(135deg,#fa709a,#fee140);border:none;color:#fff">
+    <i class="bi bi-house-fill"></i>
+</a>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
