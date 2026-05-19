@@ -128,6 +128,89 @@ const searchIndex = [
 
 // 3. Dynamic Styles Injection (Navbar, Theme Toggles, Copy Buttons)
 const sharedStyles = `
+/* Custom Premium Scrollbars */
+/* For the entire document window */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 rgba(0, 0, 0, 0.05);
+}
+body.dark-theme html {
+  scrollbar-color: #334155 #0f0f16;
+}
+
+/* Custom Scrollbar for Chrome, Safari and Edge (Webkit) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+body.dark-theme ::-webkit-scrollbar-track {
+  background: #0f0f16;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 50px;
+  border: 2px solid #f1f5f9;
+}
+body.dark-theme ::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-color: #0f0f16;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+body.dark-theme ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Sleeker scrollbars for inner boxes (code blocks, textareas, search results) */
+pre::-webkit-scrollbar,
+code::-webkit-scrollbar,
+textarea::-webkit-scrollbar,
+#search-results-box::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+pre::-webkit-scrollbar-track,
+code::-webkit-scrollbar-track,
+textarea::-webkit-scrollbar-track,
+#search-results-box::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+}
+body.dark-theme pre::-webkit-scrollbar-track,
+body.dark-theme code::-webkit-scrollbar-track,
+body.dark-theme textarea::-webkit-scrollbar-track,
+body.dark-theme #search-results-box::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+pre::-webkit-scrollbar-thumb,
+code::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-thumb,
+#search-results-box::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 50px;
+}
+body.dark-theme pre::-webkit-scrollbar-thumb,
+body.dark-theme code::-webkit-scrollbar-thumb,
+body.dark-theme textarea::-webkit-scrollbar-thumb,
+body.dark-theme #search-results-box::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+pre::-webkit-scrollbar-thumb:hover,
+code::-webkit-scrollbar-thumb:hover,
+textarea::-webkit-scrollbar-thumb:hover,
+#search-results-box::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
+body.dark-theme pre::-webkit-scrollbar-thumb:hover,
+body.dark-theme code::-webkit-scrollbar-thumb:hover,
+body.dark-theme textarea::-webkit-scrollbar-thumb:hover,
+body.dark-theme #search-results-box::-webkit-scrollbar-thumb:hover {
+  background: #60a5fa;
+}
+
 /* Theme Colors Variables */
 :root {
   --nav-bg: rgba(30, 30, 46, 0.9);
@@ -170,17 +253,78 @@ body.dark-theme h3, body.dark-theme h4 {
 body.dark-theme p, body.dark-theme li, body.dark-theme .text-muted {
   color: #94a3b8 !important;
 }
-body.dark-theme table {
-  color: #e2e8f0 !important;
-  border-color: #2d2d3e !important;
+/* Premium Responsive Table Styling */
+.table-responsive-wrapper {
+  margin-bottom: 2rem;
+  border-radius: 0.6rem;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  background-color: #ffffff;
 }
-body.dark-theme td, body.dark-theme th {
+body.dark-theme .table-responsive-wrapper {
+  border-color: #2d2d3e;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  background-color: #1a1a26;
+}
+
+.table-custom {
+  margin-bottom: 0 !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+}
+
+.table-custom th {
+  background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  padding: 0.85rem 1rem !important;
+  border: none !important;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1) !important;
+}
+body.dark-theme .table-custom th {
+  background: linear-gradient(135deg, #151520, #0f0f16) !important;
+  color: #60a5fa !important;
+  border-bottom: 2px solid #2d2d3e !important;
+}
+
+.table-custom td {
+  padding: 0.85rem 1rem !important;
+  vertical-align: middle !important;
+  color: #334155 !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+  font-size: 0.86rem !important;
   background-color: transparent !important;
-  border-color: #2d2d3e !important;
+  transition: background-color 0.15s ease;
 }
-body.dark-theme .table-light, body.dark-theme .table-secondary {
-  background-color: #252538 !important;
-  color: #f1f5f9 !important;
+body.dark-theme .table-custom td {
+  color: #cbd5e1 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Remove bottom border on last row */
+.table-custom tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* Elegant Hover and Zebra Effects */
+.table-custom tr:nth-child(even) {
+  background-color: rgba(248, 250, 252, 0.6);
+}
+body.dark-theme .table-custom tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.table-custom tr:hover td {
+  background-color: rgba(59, 130, 246, 0.04) !important;
+}
+body.dark-theme .table-custom tr:hover td {
+  background-color: rgba(96, 165, 250, 0.05) !important;
 }
 body.dark-theme .accordion-button {
   background-color: #1e1e2d !important;
@@ -807,7 +951,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // I. Handle Dynamic Smooth Scroll and Highlighting on Load
+  // I. Dynamically Upgrade Tables to Premium Responsive Design
+  document.querySelectorAll("table").forEach(table => {
+    // 1. Force custom design class
+    table.className = "table table-custom";
+    
+    // 2. Wrap table in responsive container if not already wrapped
+    if (table.parentNode.className !== "table-responsive-wrapper") {
+      const wrapper = document.createElement("div");
+      wrapper.className = "table-responsive-wrapper";
+      wrapper.style.overflowX = "auto";
+      
+      table.parentNode.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
+    }
+  });
+
+  // J. Handle Dynamic Smooth Scroll and Highlighting on Load
   handleDynamicHashScroll();
 });
 
