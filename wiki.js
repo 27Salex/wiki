@@ -307,6 +307,51 @@ body.dark-theme .search-result-item:hover {
   border-radius: 0.5rem;
   padding: 0.3rem 0.6rem;
 }
+
+/* Responsive Accordion and Study Area */
+.accordion-button {
+  white-space: normal !important;
+  text-align: left;
+  line-height: 1.4;
+  padding: 0.9rem 1.1rem;
+}
+@media (max-width: 576px) {
+  .accordion-button {
+    font-size: 0.88rem !important;
+    padding: 0.75rem 0.9rem;
+  }
+}
+
+.study-scratchpad {
+  width: 100%;
+  min-height: 110px;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: var(--text-color) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 0.4rem;
+  padding: 0.75rem;
+  font-family: 'Fira Code', 'Courier New', Courier, monospace;
+  font-size: 0.85rem;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+body.dark-theme .study-scratchpad {
+  background-color: #0f0f16 !important;
+  border-color: #2d2d3e !important;
+}
+.study-scratchpad:focus {
+  outline: none;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.btn-solution-toggle {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 50px;
+  transition: all 0.2s ease-in-out;
+}
 `;
 
 // 4. Dynamic Anchor Scrolling and Highlighting Logic
@@ -523,17 +568,44 @@ document.addEventListener("DOMContentLoaded", () => {
       
       let accordionItems = "";
       qList.forEach((item, index) => {
+        const savedAnswer = localStorage.getItem(`exam_${pageKey}_${index}`) || "";
         accordionItems += `
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingQuiz${index}">
               <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseQuiz${index}" aria-expanded="false" aria-controls="collapseQuiz${index}">
-                <i class="bi bi-question-circle text-primary me-2"></i> ${item.q}
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-question-circle text-primary me-2 mt-1" style="flex-shrink: 0;"></i> 
+                  <span>${item.q}</span>
+                </div>
               </button>
             </h2>
             <div id="collapseQuiz${index}" class="accordion-collapse collapse" aria-labelledby="headingQuiz${index}" data-bs-parent="#examQuizAccordion">
               <div class="accordion-body">
-                <strong class="text-primary"><i class="bi bi-info-circle-fill"></i> Respuesta sugerida para examen:</strong><br>
-                <div class="mt-2" style="line-height: 1.55;">${item.a}</div>
+                <!-- Zona de Borrador / Editor de Práctica -->
+                <div class="mb-3">
+                  <label class="form-label small fw-bold text-secondary mb-1">
+                    <i class="bi bi-pencil-square"></i> Tu práctica / borrador de código (se guarda automáticamente):
+                  </label>
+                  <textarea class="study-scratchpad shadow-sm form-control" 
+                            placeholder="Escribe aquí tu propia respuesta o solución de código para practicar antes de ver el resultado oficial..." 
+                            data-page="${pageKey}" 
+                            data-index="${index}">${savedAnswer}</textarea>
+                </div>
+                
+                <!-- Toggle de Solución Oficial -->
+                <div class="mb-2">
+                  <button class="btn btn-sm btn-outline-primary btn-solution-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#solutionBody${index}" aria-expanded="false" aria-controls="solutionBody${index}">
+                    <i class="bi bi-eye"></i> Mostrar / Ocultar Solución Oficial
+                  </button>
+                </div>
+                
+                <!-- Solución oficial colapsable -->
+                <div class="collapse mt-3" id="solutionBody${index}">
+                  <div class="p-3 rounded border border-info-subtle bg-info-subtle bg-opacity-10">
+                    <strong class="text-primary"><i class="bi bi-patch-check-fill"></i> Solución Oficial Sugerida:</strong>
+                    <div class="mt-2" style="line-height: 1.55;">${item.a}</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -544,7 +616,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="card shadow-sm border-0 mb-4 bg-transparent">
           <div class="card-body p-0">
             <h3 class="fw-bold mb-2 text-primary-gradient d-flex align-items-center"><i class="bi bi-patch-check-fill text-primary me-2"></i> Preguntas de Examen &amp; Autoevaluación</h3>
-            <p class="small text-muted mb-3">Prepárate para los exámenes de desarrollo analizando estas preguntas clave estructuradas y sus respuestas óptimas. Haz clic para desplegarlas:</p>
+            <p class="small text-muted mb-3">Prepárate para los exámenes de desarrollo. Utiliza los editores de borrador integrados para practicar y haz clic en el botón inferior de cada pregunta para verificar tus respuestas:</p>
             <div class="accordion shadow-sm" id="examQuizAccordion">
               ${accordionItems}
             </div>
@@ -552,6 +624,16 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `;
       main.appendChild(quizSection);
+      
+      // Configure silent auto-saving for practice scratchpads
+      document.querySelectorAll(".study-scratchpad").forEach(textarea => {
+        textarea.addEventListener("input", (e) => {
+          const page = e.target.getAttribute("data-page");
+          const index = e.target.getAttribute("data-index");
+          const value = e.target.value;
+          localStorage.setItem(`exam_${page}_${index}`, value);
+        });
+      });
     }
   }
 
