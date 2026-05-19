@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diseño y Normalización — Wiki Técnica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body{background:#f8f9fa;font-family:'Segoe UI',system-ui,sans-serif}
+        .page-header{background:linear-gradient(135deg,#ee0979,#ff6a00);color:#fff;padding:2rem 1rem;border-radius:0 0 1.5rem 1.5rem;margin-bottom:1.5rem;text-align:center}
+        .page-header h1{font-weight:800;font-size:1.8rem}
+        pre{background:#1e1e2e;color:#cdd6f4;border-radius:.75rem;padding:1rem;overflow-x:auto;font-size:.85rem;line-height:1.5}
+        code{font-family:'Cascadia Code','Fira Code',monospace}
+        .kw{color:#cba6f7}.fn{color:#89b4fa}.str{color:#a6e3a1}.cm{color:#6c7086;font-style:italic}.num{color:#fab387}
+        .back-btn{position:fixed;bottom:1rem;right:1rem;z-index:1000;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+        h2{color:#ee0979;font-weight:700;margin-top:2rem;border-bottom:3px solid #ee0979;padding-bottom:.4rem}
+        h3{color:#495057;font-weight:600;margin-top:1.5rem}
+        .card{border:none;border-radius:1rem;margin-bottom:1rem}
+    </style>
+</head>
+<body>
+<header class="page-header">
+    <i class="bi bi-rulers" style="font-size:2.5rem"></i>
+    <h1>Diseño &amp; Normalización</h1>
+    <p class="mb-0 opacity-75">Metodología E/R, Reglas de Transformación y Formas Normales (1FN a 3FN)</p>
+</header>
+
+<main class="container px-3 pb-5">
+
+<!-- ==================== TEORÍA DE NORMALIZACIÓN ==================== -->
+<h2><i class="bi bi-graph-up-arrow"></i> Guía Práctica de Normalización: De 1FN a 3FN</h2>
+<p>La <strong>normalización</strong> es el proceso sistemático de organizar los datos en una base de datos relacional para evitar la <strong>redundancia</strong> (duplicación de datos) y prevenir <strong>anomalías</strong> de inserción, actualización y borrado.</p>
+
+<div class="card shadow-sm">
+<div class="card-body">
+<strong>¿Por qué normalizar?</strong>
+<ul class="mb-0 mt-1">
+    <li>Elimina la redundancia física y optimiza el almacenamiento.</li>
+    <li>Garantiza la integridad referencial al evitar desajustes en actualizaciones.</li>
+    <li>Simplifica el mantenimiento del esquema a largo plazo.</li>
+</ul>
+</div>
+</div>
+
+<h3>Caso Práctico de Partida (Tabla No Normalizada)</h3>
+<p>Imagina una tabla inicial que almacena información de los artilugios que aparecen en los episodios de una serie:</p>
+<pre><code><span class="cm">-- Estructura original con redundancias y valores multivalorados</span>
+<span class="kw">TABLA</span> Episodios_Artilugios (
+    id_episodio        <span class="fn">INT</span>,
+    titulo_episodio    <span class="fn">VARCHAR</span>,
+    temporada          <span class="fn">INT</span>,
+    artilugios         <span class="fn">VARCHAR</span>,  <span class="cm">-- "Teletransportador, Analizador" (Multivalorado)</span>
+    creador_artilugio  <span class="fn">VARCHAR</span>   <span class="cm">-- "Dr. Baxter, Dra. Vega" (Multivalorado)</span>
+);</code></pre>
+
+<h3>Primera Forma Normal (1FN): Atomicidad</h3>
+<p>Una tabla está en <strong>1FN</strong> si todos los atributos contienen valores <strong>atómicos e indivisibles</strong> (sin listas separadas por comas) y existe una <strong>Clave Primaria</strong> única definida.</p>
+<pre><code><span class="cm">-- Paso a 1FN: Desglosamos las listas y definimos una clave compuesta</span>
+<span class="kw">TABLA</span> Episodios_Artilugios_1FN (
+    id_episodio        <span class="fn">INT</span>,          <span class="cm">-- PK Compuesta (Parte 1)</span>
+    titulo_episodio    <span class="fn">VARCHAR</span>,
+    temporada          <span class="fn">INT</span>,
+    nombre_artilugio   <span class="fn">VARCHAR</span>,      <span class="cm">-- PK Compuesta (Parte 2) [Atómico]</span>
+    creador_artilugio  <span class="fn">VARCHAR</span>       <span class="cm">-- [Atómico]</span>
+);</code></pre>
+
+<h3>Segunda Forma Normal (2FN): Dependencia Completa</h3>
+<p>Una tabla está en <strong>2FN</strong> si ya está en <strong>1FN</strong> y todos los atributos que no forman parte de la clave primaria tienen una <strong>dependencia funcional completa</strong> de toda la clave primaria (es decir, no dependen únicamente de una <em>parte</em> de la clave compuesta).</p>
+<pre><code><span class="cm">-- Paso a 2FN: Separamos las entidades según sus dependencias funcionales</span>
+
+<span class="kw">CREATE TABLE</span> episodios (
+    id_episodio   <span class="fn">INT</span> <span class="kw">PRIMARY KEY</span>,
+    titulo        <span class="fn">VARCHAR</span>(<span class="num">150</span>) <span class="kw">NOT NULL</span>,
+    temporada     <span class="fn">INT</span> <span class="kw">NOT NULL</span>
+);
+
+<span class="kw">CREATE TABLE</span> artilugios (
+    nombre_artilugio  <span class="fn">VARCHAR</span>(<span class="num">100</span>) <span class="kw">PRIMARY KEY</span>,
+    creador_artilugio <span class="fn">VARCHAR</span>(<span class="num">100</span>)
+);
+
+<span class="kw">CREATE TABLE</span> aparicion_artilugios (
+    id_episodio       <span class="fn">INT</span>,
+    nombre_artilugio  <span class="fn">VARCHAR</span>(<span class="num">100</span>),
+    <span class="kw">CONSTRAINT</span> pk_aparicion <span class="kw">PRIMARY KEY</span> (id_episodio, nombre_artilugio)
+);</code></pre>
+
+<h3>Tercera Forma Normal (3FN): Eliminar Dependencias Transitivas</h3>
+<p>Una tabla está en <strong>3FN</strong> si ya está en <strong>2FN</strong> y no existen <strong>dependencias transitivas</strong> entre los atributos no clave (es decir, ningún atributo no clave puede depender de otro atributo no clave).</p>
+<pre><code><span class="cm">-- Paso a 3FN: Eliminamos la transitividad de creador_artilugio -> patrocinador_creador</span>
+
+<span class="kw">CREATE TABLE</span> artilugios (
+    nombre_artilugio  <span class="fn">VARCHAR</span>(<span class="num">100</span>) <span class="kw">PRIMARY KEY</span>,
+    creador_id        <span class="fn">INT</span>
+);
+
+<span class="kw">CREATE TABLE</span> creadores (
+    creador_id        <span class="fn">INT</span> <span class="kw">PRIMARY KEY</span>,
+    nombre_creador    <span class="fn">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+    patrocinador      <span class="fn">VARCHAR</span>(<span class="num">100</span>)
+);</code></pre>
+
+<!-- ==================== MODELO CONCEPTUAL A LÓGICO N:M ==================== -->
+<h2><i class="bi bi-bezier2"></i> Conversión de Modelo Conceptual (E/R) a Lógico en Relaciones N:M</h2>
+<p>En el diseño de bases de datos relacionales, una relación <strong>Muchos a Muchos (N:M)</strong> a nivel conceptual (Diagrama Entidad-Relación) no se puede implementar de forma directa. Debe transformarse obligatoriamente en un modelo lógico mediante la introducción de una <strong>tabla intermedia</strong> (también llamada tabla de ruptura, unión o pivote).</p>
+
+<h3>Reglas de Transformación Estrictas</h3>
+<div class="card shadow-sm">
+<div class="card-body">
+<ol class="mb-0">
+    <li>Cada una de las dos entidades originales se convierte en una tabla independiente con su propia Clave Primaria.</li>
+    <li>La acción o relación N:M se convierte en una <strong>nueva tabla intermedia</strong>.</li>
+    <li>La Clave Primaria de esta nueva tabla es una <strong>clave compuesta</strong> formada por las claves primarias de las dos entidades relacionadas (que actúan simultáneamente como Claves Foráneas <code>FK</code>).</li>
+    <li>Cualquier atributo propio de la relación a nivel conceptual se añade como una columna ordinaria en la tabla intermedia.</li>
+</ol>
+</div>
+</div>
+
+<h3>Caso de Ejemplo Completo: Acción "Sacar"</h3>
+<p>Imaginemos el siguiente escenario en una serie de ciencia ficción:</p>
+<ul class="mb-3">
+    <li>La entidad <strong>Artilugio</strong> (identificado por <code>id_artilugio</code>).</li>
+    <li>La entidad <strong>Episodio</strong> (identificado por <code>id_episodio</code>).</li>
+    <li>La relación N:M <strong>"Sacar"</strong> (un artilugio sale en muchos episodios, un episodio tiene muchos artilugios).</li>
+    <li>Atributo propio de la relación: <strong>minuto</strong> (momento del episodio donde se saca el artilugio).</li>
+</ul>
+
+<pre><code><span class="cm">-- 1. Tabla Fuerte: ARTILUGIOS</span>
+<span class="kw">CREATE TABLE</span> artilugios (
+    id_artilugio  <span class="fn">INT</span> <span class="kw">PRIMARY KEY</span>,
+    nombre        <span class="fn">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+    descripcion   <span class="fn">TEXT</span>
+);
+
+<span class="cm">-- 2. Tabla Fuerte: EPISODIOS</span>
+<span class="kw">CREATE TABLE</span> episodios (
+    id_episodio   <span class="fn">INT</span> <span class="kw">PRIMARY KEY</span>,
+    titulo        <span class="fn">VARCHAR</span>(<span class="num">150</span>) <span class="kw">NOT NULL</span>,
+    temporada     <span class="fn">INT</span> <span class="kw">NOT NULL</span>
+);
+
+<span class="cm">-- 3. Tabla Intermedia: sacar (con PK compuesta y atributo propio)</span>
+<span class="kw">CREATE TABLE</span> sacar (
+    id_artilugio  <span class="fn">INT</span>,
+    id_episodio   <span class="fn">INT</span>,
+    minuto        <span class="fn">INT</span> <span class="kw">NOT NULL</span>,  <span class="cm">-- Atributo propio de la relación N:M</span>
+    
+    <span class="cm">-- Clave Primaria Compuesta</span>
+    <span class="kw">CONSTRAINT</span> pk_sacar <span class="kw">PRIMARY KEY</span> (id_artilugio, id_episodio),
+    
+    <span class="cm">-- Claves Foráneas con restricciones de integridad referencial</span>
+    <span class="kw">CONSTRAINT</span> fk_sacar_artilugio <span class="kw">FOREIGN KEY</span> (id_artilugio)
+        <span class="kw">REFERENCES</span> artilugios(id_artilugio)
+        <span class="kw">ON DELETE RESTRICT</span>
+        <span class="kw">ON UPDATE CASCADE</span>,
+        
+    <span class="kw">CONSTRAINT</span> fk_sacar_episodio <span class="kw">FOREIGN KEY</span> (id_episodio)
+        <span class="kw">REFERENCES</span> episodios(id_episodio)
+        <span class="kw">ON DELETE CASCADE</span>
+        <span class="kw">ON UPDATE CASCADE</span>
+);</code></pre>
+
+</main>
+
+<a href="index.html" class="btn back-btn shadow" title="Volver al inicio" id="btn-back" style="background:linear-gradient(135deg,#ee0979,#ff6a00);border:none;color:#fff">
+    <i class="bi bi-house-fill"></i>
+</a>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="wiki.js"></script>
+</body>
+</html>

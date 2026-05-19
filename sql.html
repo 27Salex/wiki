@@ -62,6 +62,39 @@
         <span class="kw">ON UPDATE CASCADE</span>
 );</code></pre>
 
+<h3>Restricciones Avanzadas (CHECK y Reglas de Propagación)</h3>
+<p>Las restricciones aseguran la integridad y consistencia de los datos en la base de datos.</p>
+<pre><code><span class="cm">-- Ejemplo con CONSTRAINT CHECK y reglas de propagación de claves foráneas</span>
+<span class="kw">CREATE TABLE</span> series_episodios (
+    id_episodio   <span class="fn">INT</span> <span class="kw">PRIMARY KEY</span>,
+    titulo        <span class="fn">VARCHAR</span>(<span class="num">150</span>) <span class="kw">NOT NULL</span>,
+    temporada     <span class="fn">INT</span> <span class="kw">NOT NULL</span>,
+    depto_id      <span class="fn">INT</span>,
+    
+    <span class="cm">-- CONSTRAINT CHECK: valida que la temporada esté entre 1 y 10</span>
+    <span class="kw">CONSTRAINT</span> chk_temporada_rango <span class="kw">CHECK</span> (temporada <span class="kw">BETWEEN</span> <span class="num">1</span> <span class="kw">AND</span> <span class="num">10</span>),
+    
+    <span class="cm">-- ON UPDATE CASCADE: Si cambia la PK en departamentos, se actualiza automáticamente aquí.</span>
+    <span class="cm">-- ON DELETE CASCADE: Si se borra el departamento, se borran automáticamente los episodios asociados.</span>
+    <span class="kw">CONSTRAINT</span> fk_episodio_depto <span class="kw">FOREIGN KEY</span> (depto_id)
+        <span class="kw">REFERENCES</span> departamentos(id)
+        <span class="kw">ON UPDATE CASCADE</span>
+        <span class="kw">ON DELETE CASCADE</span>
+);
+
+<span class="cm">-- Clave Foránea con restricción RESTRICT:</span>
+<span class="cm">-- Impide borrar o modificar la PK referenciada si existen registros asociados en la tabla hija.</span>
+<span class="kw">CREATE TABLE</span> personajes (
+    id_personaje  <span class="fn">INT</span> <span class="kw">PRIMARY KEY</span>,
+    nombre        <span class="fn">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+    depto_id      <span class="fn">INT</span>,
+    
+    <span class="kw">CONSTRAINT</span> fk_personaje_depto <span class="kw">FOREIGN KEY</span> (depto_id)
+        <span class="kw">REFERENCES</span> departamentos(id)
+        <span class="kw">ON DELETE RESTRICT</span>
+        <span class="kw">ON UPDATE RESTRICT</span>
+);</code></pre>
+
 <h3>ALTER TABLE</h3>
 <p>Modifica la estructura de una tabla existente.</p>
 <pre><code><span class="cm">-- Añadir columna</span>
@@ -119,7 +152,21 @@
 <span class="cm">-- Actualizar con subconsulta</span>
 <span class="kw">UPDATE</span> empleados
 <span class="kw">SET</span> depto_id = (<span class="kw">SELECT</span> id <span class="kw">FROM</span> departamentos <span class="kw">WHERE</span> nombre = <span class="str">'IT'</span>)
-<span class="kw">WHERE</span> email = <span class="str">'ana@empresa.com'</span>;</code></pre>
+<span class="kw">WHERE</span> email = <span class="str">'ana@empresa.com'</span>;
+
+<span class="cm">-- Plantilla de actualización compleja utilizando UPDATE con INNER JOIN (Estándar / T-SQL / PostgreSQL)</span>
+<span class="cm">-- Modifica salarios basándose en filtros aplicados a la tabla de departamentos vinculada</span>
+<span class="kw">UPDATE</span> e
+<span class="kw">SET</span> e.salario = e.salario * <span class="num">1.10</span>
+<span class="kw">FROM</span> empleados e
+<span class="kw">INNER JOIN</span> departamentos d <span class="kw">ON</span> e.depto_id = d.id
+<span class="kw">WHERE</span> d.nombre = <span class="str">'IT'</span>;
+
+<span class="cm">-- Plantilla de actualización compleja con INNER JOIN en MySQL (sintaxis alternativa)</span>
+<span class="kw">UPDATE</span> empleados e
+<span class="kw">INNER JOIN</span> departamentos d <span class="kw">ON</span> e.depto_id = d.id
+<span class="kw">SET</span> e.salario = e.salario * <span class="num">1.10</span>
+<span class="kw">WHERE</span> d.nombre = <span class="str">'Ventas'</span>;</code></pre>
 
 <h3>DELETE</h3>
 <pre><code><span class="cm">-- Eliminar registros con condición</span>
@@ -287,13 +334,25 @@
 <span class="cm">-- Si hay error:</span>
 <span class="cm">-- ROLLBACK;</span></code></pre>
 
-<!-- ==================== DCL ==================== -->
-<h2><i class="bi bi-shield-lock"></i> DCL — Control de Acceso</h2>
-<pre><code><span class="cm">-- Conceder permisos</span>
-<span class="kw">GRANT SELECT</span>, <span class="kw">INSERT</span> <span class="kw">ON</span> empleados <span class="kw">TO</span> usuario_app;
+<h2><i class="bi bi-shield-lock"></i> DCL — Control de Acceso y Seguridad</h2>
+<p>El sublenguaje DCL (Data Control Language) se encarga de administrar los roles, usuarios y gestionar la seguridad.</p>
+<pre><code><span class="cm">-- 1. Crear un rol de base de datos</span>
+<span class="kw">CREATE ROLE</span> rol_analista;
 
-<span class="cm">-- Revocar permisos</span>
-<span class="kw">REVOKE INSERT ON</span> empleados <span class="kw">FROM</span> usuario_app;</code></pre>
+<span class="cm">-- 2. Asignar un usuario miembro a un rol (Sintaxis estándar / ANSI SQL)</span>
+<span class="kw">GRANT</span> rol_analista <span class="kw">TO</span> usuario_web;
+
+<span class="cm">-- Asignar miembro a un rol (Sintaxis específica de T-SQL / SQL Server)</span>
+<span class="kw">ALTER ROLE</span> rol_analista <span class="kw">ADD MEMBER</span> usuario_web;
+
+<span class="cm">-- 3. Gestión de Permisos: Conceder lectura</span>
+<span class="kw">GRANT SELECT</span> <span class="kw">ON</span> empleados <span class="kw">TO</span> rol_analista;
+
+<span class="cm">-- 4. Gestión de Permisos: Denegación explícita (bloquea el acceso aunque pertenezca a otros roles)</span>
+<span class="kw">DENY INSERT</span>, <span class="kw">DELETE</span> <span class="kw">ON</span> empleados <span class="kw">TO</span> rol_analista;
+
+<span class="cm">-- 5. Revocar permisos previamente concedidos</span>
+<span class="kw">REVOKE SELECT ON</span> empleados <span class="kw">FROM</span> rol_analista;</code></pre>
 
 </main>
 
@@ -301,5 +360,6 @@
     <i class="bi bi-house-fill"></i>
 </a>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="wiki.js"></script>
 </body>
 </html>

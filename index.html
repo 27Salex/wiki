@@ -56,6 +56,7 @@
         .tech-card p  { font-size: .88rem; color: #6c757d; margin: 0; }
 
         /* Colores únicos por tecnología */
+        .bg-design   { background: linear-gradient(135deg, #ee0979, #ff6a00); }
         .bg-sql      { background: linear-gradient(135deg, #4facfe, #00f2fe); }
         .bg-mysql     { background: linear-gradient(135deg, #f78ca0, #f9748f); }
         .bg-mssql     { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
@@ -82,6 +83,17 @@
     <!-- Dashboard Grid -->
     <main class="container px-3">
         <div class="row g-3">
+
+            <!-- Diseño y Normalización -->
+            <div class="col-6 col-md-4">
+                <a href="design.html" class="tech-card card shadow-sm" id="card-design">
+                    <div class="card-body">
+                        <div class="icon-circle bg-design"><i class="bi bi-rulers"></i></div>
+                        <h5>Diseño &amp; Normalización</h5>
+                        <p>Modelado E/R, conversión lógica y formas normales (1FN a 3FN).</p>
+                    </div>
+                </a>
+            </div>
 
             <!-- SQL -->
             <div class="col-6 col-md-4">
@@ -155,5 +167,6 @@
     <p class="footer-text">Wiki Técnica &copy; 2026 — Creada con Bootstrap 5</p>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="wiki.js"></script>
 </body>
 </html>

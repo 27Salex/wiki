@@ -59,6 +59,41 @@
 </div>
 <p>BASE prioriza la <strong>disponibilidad</strong> y acepta que los datos pueden no ser consistentes de forma inmediata, pero lo serán eventualmente.</p>
 
+<h3>Consistencia Eventual frente a Consistencia Inmediata</h3>
+<p>En bases de datos distribuidas:</p>
+<ul>
+    <li><strong>Consistencia Inmediata (Strong Consistency):</strong> Cualquier lectura tras una escritura devuelve el dato modificado. Garantizada en bases relacionales (ACID). Produce alta latencia ante fallos de red.</li>
+    <li><strong>Consistencia Eventual (Eventual Consistency):</strong> Las actualizaciones se propagan a todos los nodos con el tiempo. Si no hay nuevas escrituras, todos los accesos verán el mismo dato. Prioriza rendimiento y disponibilidad.</li>
+</ul>
+
+<h3>Escenarios de Uso: NoSQL frente al Modelo Relacional</h3>
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="card h-100 shadow-sm border-start border-3 border-primary">
+            <div class="card-body">
+                <h5 class="fw-bold text-primary"><i class="bi bi-database-check"></i> Cuándo usar Relacional (SQL)</h5>
+                <ul class="mb-0 ps-3 small">
+                    <li>Transacciones financieras o críticas que requieran cumplimiento estricto de <strong>ACID</strong>.</li>
+                    <li>Estructuras de datos altamente estructuradas con relaciones complejas e invariables.</li>
+                    <li>Sistemas donde el esquema debe ser definido y validado rígidamente desde el principio.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100 shadow-sm border-start border-3 border-success">
+            <div class="card-body">
+                <h5 class="fw-bold text-success"><i class="bi bi-braces"></i> Cuándo usar NoSQL (MongoDB...)</h5>
+                <ul class="mb-0 ps-3 small">
+                    <li>Grandes volúmenes de datos con esquemas cambiantes o no definidos (esquema dinámico).</li>
+                    <li>Necesidad de alta escalabilidad horizontal (distribuir la carga en múltiples servidores baratos).</li>
+                    <li>Modelos de datos con relaciones simples o nulas, donde los datos anidados (embebidos) son más eficientes.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ==================== TIPOS NoSQL ==================== -->
 <h2><i class="bi bi-grid-3x3-gap"></i> Tipos de Bases de Datos NoSQL</h2>
 
@@ -145,7 +180,19 @@ db.empleados.<span class="fn">findOne</span>({ email: <span class="str">"ana@emp
 <span class="cm">// Proyección: mostrar solo ciertos campos</span>
 db.empleados.<span class="fn">find</span>(
     { departamento: <span class="str">"IT"</span> },
-    { nombre: <span class="num">1</span>, salario: <span class="num">1</span>, _id: <span class="num">0</span> }  <span class="cm">// 1 = incluir, 0 = excluir</span>
+    { nombre: <span class="num">1</span>, salario: <span class="num">1</span>, _id: <span class="num">0</span> }  <span class="cm">// 1 = incluir, 0 = excluir (el _id es el único que permite mezclar)</span>
+);
+
+<span class="cm">// Proyección de Exclusión Explicita: ocultar atributos específicos (ej. contraseña y bono) y mostrar el resto</span>
+db.empleados.<span class="fn">find</span>(
+    { activo: <span class="kw">true</span> },
+    { contrasena: <span class="num">0</span>, bono: <span class="num">0</span> }  <span class="cm">// Muestra todos los campos EXCEPTO contrasena y bono</span>
+);
+
+<span class="cm">// Proyección de Inclusión Explicita: mostrar únicamente campos específicos</span>
+db.empleados.<span class="fn">find</span>(
+    { departamento: <span class="str">"Ventas"</span> },
+    { nombre: <span class="num">1</span>, email: <span class="num">1</span> }  <span class="cm">// Muestra SOLO nombre, email y el _id (que se incluye por defecto)</span>
 );
 
 <span class="cm">// Operadores de comparación</span>
@@ -309,5 +356,6 @@ db.empleados.<span class="fn">dropIndex</span>(<span class="str">"email_1"</span
     <i class="bi bi-house-fill"></i>
 </a>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="wiki.js"></script>
 </body>
 </html>

@@ -148,6 +148,42 @@
 
 <span class="kw">PRINT</span> <span class="str">'Encontrados: '</span> + <span class="fn">CAST</span>(@resultado <span class="kw">AS</span> <span class="fn">VARCHAR</span>);</code></pre>
 
+<h3>Procedimiento con Lógica de Control (IF/ELSE) y PRINT</h3>
+<p>Este procedimiento muestra la sintaxis de paso de parámetros de entrada y salida, el control de flujo con condicionales <code>IF/ELSE</code> y el uso de <code>PRINT</code> para depuración y mensajería en consola.</p>
+<pre><code><span class="kw">CREATE OR ALTER PROCEDURE</span> sp_ProcesarBonoEmpleado
+    @depto_id     <span class="fn">INT</span>,
+    @bono_base    <span class="fn">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>),
+    @filas_afect  <span class="fn">INT</span> <span class="kw">OUTPUT</span>  <span class="cm">-- Parámetro de salida</span>
+<span class="kw">AS</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">SET NOCOUNT ON</span>;
+    <span class="kw">DECLARE</span> @mensaje <span class="fn">NVARCHAR</span>(<span class="num">250</span>);
+    
+    <span class="cm">-- Lógica de control IF/ELSE: verificar si el departamento existe</span>
+    <span class="kw">IF EXISTS</span> (
+        <span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">FROM</span> departamentos <span class="kw">WHERE</span> id = @depto_id
+    )
+    <span class="kw">BEGIN</span>
+        <span class="cm">-- Modificar registros basados en el parámetro de entrada</span>
+        <span class="kw">UPDATE</span> empleados
+        <span class="kw">SET</span> salario = salario + @bono_base
+        <span class="kw">WHERE</span> depto_id = @depto_id;
+        
+        <span class="cm">-- Asignar el número de filas afectadas a la variable de salida</span>
+        <span class="kw">SET</span> @filas_afect = <span class="fn">@@ROWCOUNT</span>;
+        
+        <span class="cm">-- Concatenar y mostrar mensaje de éxito en consola usando PRINT</span>
+        <span class="kw">SET</span> @mensaje = <span class="str">N'Bono procesado con éxito. Empleados afectados: '</span> 
+                     + <span class="fn">CAST</span>(@filas_afect <span class="kw">AS</span> <span class="fn">NVARCHAR</span>(<span class="num">10</span>));
+        <span class="kw">PRINT</span> @mensaje;
+    <span class="kw">END</span>
+    <span class="kw">ELSE</span>
+    <span class="kw">BEGIN</span>
+        <span class="kw">SET</span> @filas_afect = <span class="num">0</span>;
+        <span class="kw">PRINT</span> <span class="str">N'ERROR: El ID de departamento especificado no existe.'</span>;
+    <span class="kw">END</span>
+<span class="kw">END</span>;</code></pre>
+
 <h3>Procedimiento con manejo de errores</h3>
 <pre><code><span class="kw">CREATE PROCEDURE</span> sp_TransferirSaldo
     @cuenta_origen   <span class="fn">INT</span>,
@@ -180,6 +216,17 @@
 
 <!-- ==================== FUNCIONES ==================== -->
 <h2><i class="bi bi-lightning"></i> Funciones Definidas por el Usuario</h2>
+<p>Las funciones de T-SQL permiten encapsular lógica reutilizable. Tienen restricciones estrictas (no pueden realizar operaciones de escritura en la base de datos). Aspectos sintácticos clave:</p>
+<div class="card shadow-sm mb-3">
+<div class="card-body">
+<ul class="mb-0" style="font-size: 0.9rem;">
+    <li><strong><code>RETURNS:</code></strong> Especifica obligatoriamente el tipo de dato que devolverá la función (escalar o una estructura de tabla).</li>
+    <li><strong><code>DECLARE:</code></strong> Permite declarar variables locales de forma explícita especificando su tipo de datos.</li>
+    <li><strong><code>SET:</code></strong> Se utiliza para realizar asignaciones directas de valores a variables locales previamente declaradas.</li>
+    <li><strong><code>RETURN:</code></strong> Finaliza la ejecución de la función y devuelve el valor calculado al entorno que lo invocó.</li>
+</ul>
+</div>
+</div>
 
 <h3>Función Escalar</h3>
 <pre><code><span class="cm">-- Devuelve un único valor</span>
@@ -262,6 +309,25 @@
     <span class="kw">END</span>;
 <span class="kw">END</span>;</code></pre>
 
+<h3>Trigger AFTER DELETE — Auditoría de Eliminaciones</h3>
+<p>El trigger <code>AFTER DELETE</code> se ejecuta después de que los datos se han eliminado físicamente de la tabla. Permite capturar las filas borradas a través de la tabla lógica <code>deleted</code>.</p>
+<pre><code><span class="kw">CREATE TRIGGER</span> trg_Empleados_Delete
+<span class="kw">ON</span> empleados
+<span class="kw">AFTER DELETE</span>
+<span class="kw">AS</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">SET NOCOUNT ON</span>;
+    
+    <span class="cm">-- Intercepta el evento de borrado y registra los datos eliminados</span>
+    <span class="kw">INSERT INTO</span> auditoria_empleados (accion, emp_id, nombre)
+    <span class="kw">SELECT</span> <span class="str">'DELETE'</span>, id, nombre
+    <span class="kw">FROM</span> deleted;  <span class="cm">-- pseudo-tabla con las filas eliminadas (DELETED)</span>
+    
+    <span class="kw">PRINT</span> <span class="str">'Eliminación registrada en auditoría para '</span> 
+        + <span class="fn">CAST</span>(<span class="fn">@@ROWCOUNT</span> <span class="kw">AS</span> <span class="fn">VARCHAR</span>) 
+        + <span class="str">' empleado(s).'</span>;
+<span class="kw">END</span>;</code></pre>
+
 <h3>Trigger INSTEAD OF — Prevenir eliminaciones</h3>
 <pre><code><span class="cm">-- En vez de eliminar, marca como inactivo</span>
 <span class="kw">CREATE TRIGGER</span> trg_Empleados_SoftDelete
@@ -329,5 +395,6 @@
     <i class="bi bi-house-fill"></i>
 </a>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="wiki.js"></script>
 </body>
 </html>
