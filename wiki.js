@@ -322,27 +322,105 @@ body.dark-theme .search-result-item:hover {
   }
 }
 
+/* Premium IDE Editor Skin */
+.editor-wrapper {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+body.dark-theme .editor-wrapper {
+  border-color: #2d2d3e;
+  background-color: #151520;
+}
+
+.editor-header {
+  background-color: #f1f5f9;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 0 0.75rem;
+  height: 36px;
+}
+body.dark-theme .editor-header {
+  background-color: #0f0f16;
+  border-bottom-color: #2d2d3e;
+}
+
+.editor-tab {
+  height: 36px;
+  padding: 0 0.85rem;
+  background-color: #ffffff;
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 2px solid #3b82f6;
+}
+body.dark-theme .editor-tab {
+  background-color: #151520;
+  border-right-color: #2d2d3e;
+  border-bottom-color: #60a5fa;
+}
+
+.editor-filename {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-color) !important;
+}
+
+.editor-action-btn {
+  font-size: 0.95rem;
+  color: #64748b !important;
+  transition: all 0.15s ease;
+}
+.editor-action-btn:hover {
+  color: #3b82f6 !important;
+  transform: scale(1.1);
+}
+
 .study-scratchpad {
   width: 100%;
-  min-height: 110px;
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  color: var(--text-color) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 0.4rem;
-  padding: 0.75rem;
+  min-height: 120px;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0.75rem 0.9rem !important;
   font-family: 'Fira Code', 'Courier New', Courier, monospace;
-  font-size: 0.85rem;
+  font-size: 0.86rem !important;
+  line-height: 1.5;
+  background-color: #ffffff !important;
+  color: #1e293b !important;
   resize: vertical;
-  transition: border-color 0.2s, box-shadow 0.2s;
 }
 body.dark-theme .study-scratchpad {
-  background-color: #0f0f16 !important;
-  border-color: #2d2d3e !important;
+  background-color: #151520 !important;
+  color: #e2e8f0 !important;
 }
 .study-scratchpad:focus {
-  outline: none;
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.editor-statusbar {
+  background-color: #f8fafc;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  font-size: 0.72rem;
+}
+body.dark-theme .editor-statusbar {
+  background-color: #0f0f16;
+  border-top-color: #2d2d3e;
+}
+
+/* Pulsing dot for saving state */
+.pulse-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: #10b981;
+  border-radius: 50%;
+  margin-right: 4px;
+  animation: dot-pulse 1.6s infinite ease-in-out;
+}
+@keyframes dot-pulse {
+  0% { transform: scale(0.85); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.85); opacity: 0.6; }
 }
 
 .btn-solution-toggle {
@@ -352,6 +430,48 @@ body.dark-theme .study-scratchpad {
   border-radius: 50px;
   transition: all 0.2s ease-in-out;
 }
+
+/* Absolute High Contrast Solution Box */
+.solution-box {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  color: #0f172a !important; /* Extremely high contrast solid dark color */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+body.dark-theme .solution-box {
+  background-color: #0f0f16;
+  border-color: #3b82f6;
+  color: #f8fafc !important; /* Perfect crisp white under dark theme */
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
+}
+
+.solution-box p, 
+.solution-box div, 
+.solution-box li, 
+.solution-box span, 
+.solution-box strong {
+  color: inherit; /* Prevent inline classes from overriding high-contrast */
+}
+
+.solution-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #2563eb !important;
+}
+body.dark-theme .solution-title {
+  color: #60a5fa !important;
+}
+
+/* High Contrast Override for Highlighted Codes inside Solution Box */
+.solution-box .cm { color: #475569 !important; }
+body.dark-theme .solution-box .cm { color: #94a3b8 !important; }
+.solution-box .kw { color: #0f766e !important; font-weight: bold; }
+body.dark-theme .solution-box .kw { color: #2dd4bf !important; font-weight: bold; }
+.solution-box .fn { color: #1d4ed8 !important; }
+body.dark-theme .solution-box .fn { color: #60a5fa !important; }
 `;
 
 // 4. Dynamic Anchor Scrolling and Highlighting Logic
@@ -586,10 +706,41 @@ document.addEventListener("DOMContentLoaded", () => {
                   <label class="form-label small fw-bold text-secondary mb-1">
                     <i class="bi bi-pencil-square"></i> Tu práctica / borrador de código (se guarda automáticamente):
                   </label>
-                  <textarea class="study-scratchpad shadow-sm form-control" 
-                            placeholder="Escribe aquí tu propia respuesta o solución de código para practicar antes de ver el resultado oficial..." 
-                            data-page="${pageKey}" 
-                            data-index="${index}">${savedAnswer}</textarea>
+                  <div class="editor-wrapper mb-3 shadow-sm">
+                    <!-- IDE File Tab Header Bar -->
+                    <div class="editor-header d-flex align-items-center justify-content-between">
+                      <div class="editor-tab d-flex align-items-center active">
+                        <i class="bi bi-file-earmark-code text-primary me-2"></i>
+                        <span class="editor-filename font-monospace text-secondary" style="font-size: 0.76rem;">${getPageTabName(pageKey)}</span>
+                      </div>
+                      <div class="editor-actions d-flex align-items-center gap-2">
+                        <button class="editor-action-btn btn btn-link text-muted p-0" title="Copiar código" onclick="copyScratchpadText('${pageKey}', ${index})">
+                          <i class="bi bi-clipboard"></i>
+                        </button>
+                        <button class="editor-action-btn btn btn-link text-muted p-0" title="Borrar todo" onclick="clearScratchpadText('${pageKey}', ${index})">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <!-- Textarea Scratchpad -->
+                    <textarea class="study-scratchpad form-control shadow-sm" 
+                              placeholder="-- Escribe aquí tu propia respuesta o solución de código para practicar..." 
+                              data-page="${pageKey}" 
+                              data-index="${index}">${savedAnswer}</textarea>
+                    
+                    <!-- Editor Status Bar -->
+                    <div class="editor-statusbar d-flex align-items-center justify-content-between px-2 py-1 small text-muted">
+                      <div>
+                        <span class="saving-indicator text-success" id="saveIndicator-${pageKey}-${index}">
+                          <span class="pulse-dot"></span> Sincronizado
+                        </span>
+                      </div>
+                      <div class="editor-stats">
+                        <span id="charCount-${pageKey}-${index}">${savedAnswer.length}</span> caracteres
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 
                 <!-- Toggle de Solución Oficial -->
@@ -601,9 +752,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 <!-- Solución oficial colapsable -->
                 <div class="collapse mt-3" id="solutionBody${index}">
-                  <div class="p-3 rounded border border-info-subtle bg-info-subtle bg-opacity-10">
-                    <strong class="text-primary"><i class="bi bi-patch-check-fill"></i> Solución Oficial Sugerida:</strong>
-                    <div class="mt-2" style="line-height: 1.55;">${item.a}</div>
+                  <div class="solution-box shadow-sm">
+                    <div class="solution-title mb-2">
+                      <i class="bi bi-patch-check-fill me-1"></i> Solución Oficial Sugerida:
+                    </div>
+                    <div style="line-height: 1.6; font-size: 0.88rem;">${item.a}</div>
                   </div>
                 </div>
               </div>
@@ -627,11 +780,28 @@ document.addEventListener("DOMContentLoaded", () => {
       
       // Configure silent auto-saving for practice scratchpads
       document.querySelectorAll(".study-scratchpad").forEach(textarea => {
+        const page = textarea.getAttribute("data-page");
+        const index = textarea.getAttribute("data-index");
+        let saveTimeout;
+        
         textarea.addEventListener("input", (e) => {
-          const page = e.target.getAttribute("data-page");
-          const index = e.target.getAttribute("data-index");
           const value = e.target.value;
           localStorage.setItem(`exam_${page}_${index}`, value);
+          
+          // Update stats
+          const charCount = document.getElementById(`charCount-${page}-${index}`);
+          if (charCount) charCount.textContent = value.length;
+          
+          // Visual feedback in statusbar: Guardando...
+          const indicator = document.getElementById(`saveIndicator-${page}-${index}`);
+          if (indicator) {
+            indicator.innerHTML = '<span class="pulse-dot" style="background-color: #eab308; animation-duration: 0.6s;"></span> Guardando...';
+            
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+              indicator.innerHTML = '<span class="pulse-dot"></span> Sincronizado';
+            }, 600);
+          }
         });
       });
     }
@@ -643,3 +813,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // J. Listen to Hash Changes (if navigating within the same page)
 window.addEventListener("hashchange", handleDynamicHashScroll);
+
+// K. Interactive Scratchpad Helper Functions
+function getPageTabName(pageKey) {
+  if (pageKey.includes("design")) return "borrador_diseno.txt";
+  if (pageKey.includes("sql") || pageKey.includes("mysql") || pageKey.includes("mssql")) return "practica_consulta.sql";
+  if (pageKey.includes("mongodb")) return "consulta_nosql.js";
+  if (pageKey.includes("dtd")) return "estructura.dtd";
+  if (pageKey.includes("xsd")) return "esquema.xsd";
+  return "borrador.txt";
+}
+
+window.copyScratchpadText = function(page, index) {
+  const textarea = document.querySelector(`textarea[data-page="${page}"][data-index="${index}"]`);
+  if (textarea) {
+    navigator.clipboard.writeText(textarea.value).then(() => {
+      const indicator = document.getElementById(`saveIndicator-${page}-${index}`);
+      if (indicator) {
+        const originalHtml = indicator.innerHTML;
+        indicator.innerHTML = '<span class="pulse-dot" style="background-color: #3b82f6;"></span> ¡Copiado!';
+        setTimeout(() => {
+          indicator.innerHTML = originalHtml;
+        }, 1500);
+      }
+    });
+  }
+};
+
+window.clearScratchpadText = function(page, index) {
+  const textarea = document.querySelector(`textarea[data-page="${page}"][data-index="${index}"]`);
+  if (textarea) {
+    textarea.value = "";
+    localStorage.setItem(`exam_${page}_${index}`, "");
+    textarea.dispatchEvent(new Event('input'));
+  }
+};
